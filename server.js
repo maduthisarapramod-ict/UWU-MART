@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 🔒 1. ඩේටාබේස් සම්බන්ධතාවය (Database Connection)
+// 🔒 1. ඩේටාබේස් සම්බන්ධතාවය
 const MONGO_URI = "mongodb+srv://ict24067_db_user:xA6UNyQrqOkhMEhK@cluster0.2axxnyj.mongodb.net/uwumart?appName=Cluster0";
 
 mongoose.connect(MONGO_URI)
@@ -15,6 +15,13 @@ mongoose.connect(MONGO_URI)
     .catch(err => console.error("🔴 DB Connection Error:", err));
 
 // --- 🗂️ DATABASE SCHEMAS ---
+
+const OtpSchema = new mongoose.Schema({
+    email: { type: String, required: true },
+    otp: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now, expires: 300 } // විනාඩි 5කින් මැකේ
+});
+const OtpModel = mongoose.model('Otp', OtpSchema);
 
 const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
@@ -42,13 +49,14 @@ const ItemSchema = new mongoose.Schema({
 });
 const Item = mongoose.model('Item', ItemSchema);
 
-let otpCache = {};
-
 // --- 🌐 API ENDPOINTS ---
 
-// 1. Send OTP (Strict Validation)
+// 1. Send OTP
 app.post('/api/auth/send-otp', async (req, res) => {
-    const { email } = req.body;
+    let { email } = req.body;
+    if (!email) return res.status(400).json({ success: false, message: "ඊමේල් ලිපිනය අවශ්‍යයි!" });
+    
+    email = email.toLowerCase().trim(); // අකුරු සිම්පල් කරයි
     const uwuEmailRegex = /^[a-zA-Z0-9._%+-]+@std\.uwu\.ac\.lk$/;
 
     if (!uwuEmailRegex.test(email)) {
@@ -56,54 +64,85 @@ app.post('/api/auth/send-otp', async (req, res) => {
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    otpCache[email] = otp;
 
-    // 🔒 2. ඔයාගේ පුද්ගලික GMAIL එක සහ APP PASSWORD එක මෙතනට සෙට් කර ඇත
-    let transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'sspmaduthisara@gmail.com', 
-            pass: 'iway yrzc epgs hkoa' 
-        }
-    });
+    try {
+        await OtpModel.findOneAndUpdate(
+            { email },
+            { otp, createdAt: new Date() },
+            { upsert: true, new: true }
+        );
 
-    let mailOptions = {
-        from: '"UWU Mart" <sspmaduthisara@gmail.com>',
-        to: email,
-        subject: 'UWU Mart Verification Code',
-        text: `UWU Mart ගිණුම තහවුරු කිරීමට කේතය: ${otp}`
-    };
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'sspmaduthisara@gmail.com', 
+                pass: 'iway yrzc epgs hkoa' 
+            }
+        });
 
-    transporter.sendMail(mailOptions, (err) => {
-        if (err) return res.status(500).json({ success: false, message: "OTP යැවීමට අපොහොසත් විය." });
-        res.json({ success: true, message: "OTP කේතය සාර්ථකව Campus Email එකට යවන ලදි!" });
-    });
+        let mailOptions = {
+            from: '"UWU Mart" <sspmaduthisara@gmail.com>',
+            to: email,
+            subject: 'UWU Mart Verification Code',
+            text: `UWU Mart ගිණුම තහවුරු කිරීමට කේතය: ${otp}`
+        };
+
+        transporter.sendMail(mailOptions, (err) => {
+            if (err) return res.status(500).json({ success: false, message: "OTP යැවීමට අපොහොසත් විය." });
+            res.json({ success: true, message: "OTP කේතය සාර්ථකව Campus Email එකට යවන ලදි!" });
+        });
+    } catch (dbErr) {
+        res.status(500).json({ success: false, message: "Server දෝෂයකි, පසුව උත්සාහ කරන්න." });
+    }
 });
 
 // 2. Register User
 app.post('/api/auth/register', async (req, res) => {
-    const { email, otp, name, studentId, phone, photoUrl, role, password } = req.body;
-
-    if (otpCache[email] !== otp) {
-        return res.status(400).json({ success: false, message: "වැරදි OTP කේතයකි!" });
-    }
+    let { email, otp, name, studentId, phone, photoUrl, role, password } = req.body;
+    if (!email) return res.status(400).json({ success: false, message: "සියලුම විස්තර අවශ්‍යයි!" });
+    
+    email = email.toLowerCase().trim();
 
     try {
+        const otpRecord = await OtpModel.findOne({ email });
+        
+        if (!otpRecord || otpRecord.otp !== otp) {
+            return res.status(400).json({ success: false, message: "වැරදි OTP කේතයකි හෝ එහි වලංගු කාලය ඉකුත් වී ඇත!" });
+        }
+
         const newUser = new User({ email, name, studentId, phone, photoUrl, role, password });
         await newUser.save();
-        delete otpCache[email];
+        
+        await OtpModel.deleteOne({ email });
         res.json({ success: true, message: "ලියාපදිංචි වීම සාර්ථකයි! දැන් ලොග් වෙන්න." });
     } catch (err) {
-        res.status(500).json({ success: false, message: "ඊමේල් එක දැනටමත් භාවිතයේ පවතී." });
+        res.status(500).json({ success: false, message: "ඊමේල් එක දැනටමත් භාවිතයේ පවතී හෝ සර්වර් දෝෂයකි." });
     }
 });
 
-// 3. Login User
+// 3. Login User (Strict Secure try-catch)
 app.post('/api/auth/login', async (req, res) => {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email, password });
-    if (!user) return res.status(400).json({ success: false, message: "ඊමේල් හෝ මුරපදය වැරදියි!" });
-    res.json({ success: true, user: { email: user.email, name: user.name, role: user.role, photoUrl: user.photoUrl } });
+    try {
+        let { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: "ඊමේල් සහ මුරපදය ඇතුළත් කරන්න!" });
+        }
+
+        email = email.toLowerCase().trim(); // සිම්පල් අකුරු වලට හරවයි
+
+        const user = await User.findOne({ email, password });
+        if (!user) {
+            return res.status(400).json({ success: false, message: "ඊමේල් හෝ මුරපදය වැරදියි!" });
+        }
+        
+        res.json({ 
+            success: true, 
+            message: "ලොග් වීම සාර්ථකයි!",
+            user: { email: user.email, name: user.name, role: user.role, photoUrl: user.photoUrl } 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "ලොග් වීමේදී සර්වර් දෝෂයක් ඇති විය." });
+    }
 });
 
 // 4. Post New Advertisement
@@ -118,7 +157,7 @@ app.post('/api/items/post', async (req, res) => {
     }
 });
 
-// 5. Get Filtered Items (Sorted by Time: Live Newest First)
+// 5. Get Filtered Items
 app.get('/api/items', async (req, res) => {
     const { search, category } = req.query;
     let query = {};
@@ -130,7 +169,7 @@ app.get('/api/items', async (req, res) => {
     res.json(items);
 });
 
-// 6. Global Delete API (WithOwner & Super Admin Access)
+// 6. Global Delete API
 app.delete('/api/items/:id', async (req, res) => {
     const { id } = req.params;
     const { email } = req.body;
@@ -138,7 +177,6 @@ app.delete('/api/items/:id', async (req, res) => {
     const item = await Item.findById(id);
     if (!item) return res.status(404).json({ message: "දැන්වීම හමු නොවීය." });
     
-    // MASTER ACCESS LOCK: ඔයාගේ Email එකට විතරක් ඕනෑම කෙනෙක්ගේ එකක් මැකීමේ බලය ලැබේ
     if (email === 'ict24067@std.uwu.ac.lk' || item.sellerEmail === email) {
         await Item.findByIdAndDelete(id);
         return res.json({ success: true, message: "දැන්වීම සාර්ථකව මකා දමන ලදි." });
@@ -147,13 +185,12 @@ app.delete('/api/items/:id', async (req, res) => {
     res.status(403).json({ message: "මෙම දැන්වීම මැකීමට ඔබට අවසර නැත!" });
 });
 
-// 7. Admin Analytics (STRICT PRIVACY LOCK FOR NORMAL USERS)
+// 7. Admin Analytics
 app.get('/api/admin/dashboard', async (req, res) => {
     const adminEmail = req.headers['admin-email'];
     
-    // SECURITY BLOCK: ict24067@std.uwu.ac.lk හැර වෙනත් කිසිම කෙනෙකුට දත්ත බැලීමට ඉඩ නොදේ
     if (adminEmail !== 'ict24067@std.uwu.ac.lk') {
-        return res.status(403).json({ message: "Access Denied: මේ දත්ත බැලීමට අවසර ඇත්තේ ප්‍රධාන Admin ට පමණි!" });
+        return res.status(403).json({ message: "Access Denied: ප්‍රධාන Admin ට පමණි!" });
     }
     
     const totalUsers = await User.countDocuments();
