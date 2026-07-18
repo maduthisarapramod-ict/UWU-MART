@@ -121,11 +121,12 @@
         th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
         th { background: #f8fafc; color: #475569; }
 
-        /* 📱 UNIVERSAL MOBILE RESPONSIVE MEDIA QUERIES */
+        /* 📱 UNIVERSAL MOBILE RESPONSIVE MEDIA QUERIES (HAMBURGER INTRODUCED) */
         @media (max-width: 768px) {
             .navbar { padding: 12px 20px; }
             .logo { font-size: 18px; letter-spacing: 0.5px; }
             
+            /* Hide Buttons inside Hamburger Overlay */
             .menu-toggle { display: block; }
             .nav-buttons { 
                 display: none; 
@@ -186,7 +187,7 @@
                 <option value="ta">தமிழ்</option>
             </select>
             
-            <!-- Hamburger Menu for Mobile -->
+            <!-- Three Lines Hamburger Menu for Clutter-free Premium look -->
             <div class="menu-toggle" id="mobile-hamburger-btn"><i class="fa-solid fa-bars"></i></div>
             
             <div class="nav-buttons" id="nav-actions">
@@ -360,7 +361,7 @@
         </div>
     </div>
 
-    <!-- 👑 MASTER ADMIN MANAGEMENT PANEL -->
+    <!-- 👑 TOP SECRET SECURED MASTER ADMIN MANAGEMENT PANEL -->
     <div class="modal-overlay" id="admin-modal">
         <div class="admin-box">
             <span class="close-modal" id="btn-close-admin">&times;</span>
@@ -493,6 +494,7 @@
             navActions.classList.toggle('active');
         });
 
+        // Close dropdown when clicking a nav button
         navActions.addEventListener('click', (e) => {
             if(e.target.tagName === 'BUTTON' || e.target.closest('.user-profile')) {
                 navActions.classList.remove('active');
@@ -510,508 +512,423 @@
         // Inner Switching Views
         document.getElementById('link-goto-register').addEventListener('click', (e) => { e.preventDefault(); loginSection.style.display = 'none'; registerSection.style.display = 'block'; });
         document.getElementById('link-goto-login').addEventListener('click', (e) => { e.preventDefault(); registerSection.style.display = 'none'; loginSection.style.display = 'block'; });
-        
-        // 🛠️ BULLETPROOF WHATSAPP NUMBER SANITATION ENGINE (FIXED)
-        function formatWhatsAppNumber(phone) {
-            let cleaned = phone.replace(/\D/g, ''); 
+        document.getElementById('link-forgot-password').addEventListener('click', (e) => { e.preventDefault(); loginSection.style.display = 'none'; forgotSection.style.display = 'block'; });
+        document.getElementById('link-forgot-back').addEventListener('click', (e) => { e.preventDefault(); forgotSection.style.display = 'none'; loginSection.style.display = 'block'; });
 
-            if (cleaned.startsWith('94') && cleaned.length === 11) {
-                return cleaned;
-            }
-
-            if (cleaned.startsWith('0')) {
-                cleaned = '94' + cleaned.substring(1);
-            } 
-            else if (!cleaned.startsWith('94')) {
-                cleaned = '94' + cleaned;
-            }
-
-            return cleaned;
-        }
-
-        // Mock System Local Seed Data
-        if (!localStorage.getItem('users')) {
-            localStorage.setItem('users', JSON.stringify([
-                { email: "admin@std.uwu.ac.lk", password: "admin", name: "System Admin", id: "ADMIN01", phone: "0777777777", role: "Student", avatar: "" },
-                { email: "kamal@std.uwu.ac.lk", password: "123", name: "Kamal Perera", id: "ICT23002", phone: "0712345678", role: "Delivery", avatar: "" },
-                { email: "nimal@std.uwu.ac.lk", password: "123", name: "Nimal Silva", id: "MGT22045", phone: "0768889991", role: "Delivery", avatar: "" }
-            ]));
-        }
-        if (!localStorage.getItem('posts')) {
-            localStorage.setItem('posts', JSON.stringify([
-                { id: 101, title: "Premium Chicken Rice & Curry", price: 380, category: "Best Food Shop", location: "Main Gate Delivery Hub", whatsapp: "0771234567", desc: "Fresh hot campus lunch parcels made on order. Super clean and spicy side dishes.", photo: "", userEmail: "admin@std.uwu.ac.lk", createdAt: Date.now() },
-                { id: 102, title: "Engineering Calculator fx-991EX", price: 6500, category: "Electronics", location: "Hostel Block C Room 24", whatsapp: "0769998881", desc: "Perfect pristine physical condition. Best choice for upcoming mid-semester math papers.", photo: "", userEmail: "kamal@std.uwu.ac.lk", createdAt: Date.now() - 50000 }
-            ]));
-        }
-        if (!localStorage.getItem('reviews')) {
-            localStorage.setItem('reviews', JSON.stringify([
-                { name: "Suresh Perera", comment: "UWU Mart completely resolved our difficulties in finding quick delivery options inside the hostel blocks!", date: "2026-02-18" }
-            ]));
-        }
-
-        // Media File Base64 System Conversion Listeners
-        document.getElementById('reg-photo').addEventListener('change', function(e) {
+        // Base64 Streaming Processors
+        document.getElementById('reg-photo').addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(event) { regPhotoBase64 = event.target.result; };
-                reader.readAsDataURL(file);
-            }
+            const reader = new FileReader();
+            reader.onloadend = () => { regPhotoBase64 = reader.result; };
+            if (file) reader.readAsDataURL(file);
         });
-        document.getElementById('post-photo').addEventListener('change', function(e) {
+        document.getElementById('post-photo').addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(event) { itemPhotoBase64 = event.target.result; };
-                reader.readAsDataURL(file);
-            }
+            const reader = new FileReader();
+            reader.onloadend = () => { itemPhotoBase64 = reader.result; };
+            if (file) reader.readAsDataURL(file);
         });
-        document.getElementById('profile-upload-photo').addEventListener('change', function(e) {
+        document.getElementById('profile-upload-photo').addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(event) { 
-                    profilePhotoBase64 = event.target.result; 
-                    document.getElementById('profile-display-avatar').src = profilePhotoBase64;
-                };
-                reader.readAsDataURL(file);
-            }
+            const reader = new FileReader();
+            reader.onloadend = () => { 
+                profilePhotoBase64 = reader.result; 
+                document.getElementById('profile-display-avatar').src = reader.result;
+            };
+            if (file) reader.readAsDataURL(file);
         });
 
-        document.getElementById('link-forgot-password').addEventListener('click', (e) => { 
-            e.preventDefault(); 
-            loginSection.style.display = 'none'; 
-            forgotSection.style.display = 'block'; 
-        });
-        document.getElementById('link-forgot-back').addEventListener('click', (e) => { 
-            e.preventDefault(); 
-            forgotSection.style.display = 'none'; 
-            loginSection.style.display = 'block'; 
-        });
-
-        // OTP Generation Engines
-        let systemGeneratedOTP = "";
-        document.getElementById('btn-reg-otp').addEventListener('click', () => {
-            const email = document.getElementById('reg-email').value;
-            if(!email.endsWith('@std.uwu.ac.lk')) {
-                alert("Access Denied! Registration strictly requires a verified Uva Wellassa University email (@std.uwu.ac.lk).");
-                return;
-            }
-            systemGeneratedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-            alert(`[UWU SIMULATED NETWORK GATEWAY]\nYour secure profile registration verification code is: ${systemGeneratedOTP}`);
-        });
-
-        document.getElementById('btn-forgot-otp').addEventListener('click', () => {
-            const email = document.getElementById('forgot-email').value;
-            if(!email) { alert("Please provide your registered campus account email address first."); return; }
-            systemGeneratedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-            alert(`[UWU SIMULATED NETWORK GATEWAY]\nYour secure password recovery account token is: ${systemGeneratedOTP}`);
-            forgotFields.style.display = 'block';
-        });
-
-        // Log In Core Flow Execution
-        document.getElementById('btn-login').addEventListener('click', () => {
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-password').value;
-            let dbUsers = JSON.parse(localStorage.getItem('users')) || [];
-            let accountMatch = dbUsers.find(u => u.email === email && u.password === pass);
+        // Language Switcher Engine
+        function changeLanguageSystem(lang) {
+            currentLanguage = lang;
             
-            if(accountMatch) {
-                currentUser = accountMatch;
-                localStorage.setItem('user', JSON.stringify(currentUser));
-                authModal.classList.remove('active');
-                updateAuthNavbar();
-                renderDataView();
+            // Translate Text elements
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if(systemTranslations[lang][key]) {
+                    // Check if it's a tab element with inner icon preservation
+                    if(key === 'tab_items') el.innerHTML = systemTranslations[lang][key];
+                    else if(key === 'tab_riders') el.innerHTML = systemTranslations[lang][key];
+                    else el.innerText = systemTranslations[lang][key];
+                }
+            });
+
+            // Translate Input Placeholders
+            document.querySelectorAll('[data-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-placeholder');
+                if(systemTranslations[lang][key]) {
+                    el.placeholder = systemTranslations[lang][key];
+                }
+            });
+            
+            // Fix dynamically loaded headings
+            if(currentSelectedCategory !== "All") {
+                document.getElementById('market-heading').innerText = (lang === 'si' ? `සඳහා පෝෂක ${currentSelectedCategory}` : lang === 'ta' ? `${currentSelectedCategory} க்கான ஊட்டங்கள்` : `Feeds for ${currentSelectedCategory}`) + ` (${lang==='si'?'අලුත්ම ඒවා මුලින්ම':lang==='ta'?'புதியவை முதலில்':'Newest First'})`;
+            }
+        }
+
+        // ⏱️ ANTI-SPAM COUNTDOWN TIMER CONTROLLER
+        function startCountdown(buttonId, durationSeconds) {
+            const btn = document.getElementById(buttonId);
+            let timeLeft = durationSeconds; 
+            btn.disabled = true;
+            
+            const timer = setInterval(() => {
+                if (timeLeft <= 0) { 
+                    clearInterval(timer); 
+                    btn.innerText = buttonId === 'btn-reg-otp' ? "Get Verification Code" : "Send Reset OTP"; 
+                    btn.disabled = false; 
+                } else { 
+                    btn.innerText = `Resend Code (${timeLeft}s)`; 
+                    timeLeft--; 
+                }
+            }, 1000);
+        }
+
+        // 📑 TAB ENGINE
+        function switchMainTab(tabName) {
+            activeMainTab = tabName;
+            document.getElementById('tab-marketplace').classList.toggle('active', tabName === 'market');
+            document.getElementById('tab-riders').classList.toggle('active', tabName === 'riders');
+            
+            document.getElementById('section-market-view').style.display = tabName === 'market' ? 'block' : 'none';
+            document.getElementById('section-riders-view').style.display = tabName === 'riders' ? 'block' : 'none';
+            
+            if(tabName === 'market') loadMarketItemsGrid();
+            else loadRidersGrid();
+        }
+
+        // 🌐 Navbar Authentication State Layout
+        function initializeNavbarState() {
+            if (currentUser) {
+                let adminWidget = "";
+                if (currentUser.email === 'ict24067@std.uwu.ac.lk') {
+                    adminWidget = `<button class="btn-nav btn-admin" id="btn-show-admin" data-key="nav_admin"><i class="fa-solid fa-crown"></i> Admin</button>`;
+                }
+                navActions.innerHTML = `
+                    ${adminWidget}
+                    <button class="btn-nav btn-post" id="btn-show-post" data-key="nav_post"><i class="fa-solid fa-circle-plus"></i> Post</button>
+                    <div class="user-profile" id="btn-open-profile">
+                        <img src="${currentUser.photoUrl || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="user-avatar">
+                        <span>${currentUser.name.split(' ')[0]}</span>
+                    </div>
+                `;
+                document.getElementById('btn-show-post')?.addEventListener('click', () => postModal.classList.add('active'));
+                document.getElementById('btn-show-admin')?.addEventListener('click', () => {
+                    adminModal.classList.add('active');
+                    loadAdminDashboardData();
+                });
+                
+                // Open Custom Profile Modal Layout
+                document.getElementById('btn-open-profile').addEventListener('click', () => {
+                    document.getElementById('profile-display-avatar').src = currentUser.photoUrl || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                    document.getElementById('profile-display-email').innerText = currentUser.email;
+                    document.getElementById('profile-edit-name').value = currentUser.name;
+                    profilePhotoBase64 = currentUser.photoUrl;
+                    profileModal.classList.add('active');
+                });
+            }
+            changeLanguageSystem(currentLanguage);
+        }
+
+        // 👤 PROFILE SAVE UPDATES ENGINE
+        document.getElementById('btn-save-profile').addEventListener('click', () => {
+            const updatedName = document.getElementById('profile-edit-name').value.trim();
+            if(!updatedName) return alert("Name field cannot be left blank!");
+            
+            currentUser.name = updatedName;
+            currentUser.photoUrl = profilePhotoBase64;
+            
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            alert("Profile successfully customized!");
+            profileModal.classList.remove('active');
+            initializeNavbarState();
+        });
+
+        // 🔒 MOBILE VIEW INTEGRATED PROFILE LOGOUT
+        document.getElementById('btn-profile-logout').addEventListener('click', () => {
+            localStorage.removeItem('user'); currentUser = null; location.reload();
+        });
+
+        // 👑 LOAD ADMIN PANELS
+        async function loadAdminDashboardData() {
+            if(currentUser?.email !== 'ict24067@std.uwu.ac.lk') return;
+            try {
+                const res = await fetch(`/api/admin/users?adminEmail=${currentUser.email}`);
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('admin-user-count').innerText = data.users.length;
+                    document.getElementById('admin-user-rows').innerHTML = data.users.map(u => `
+                        <tr>
+                            <td><img src="${u.photoUrl}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;"></td>
+                            <td><b>${u.name}</b></td>
+                            <td><code style="background:#f1f5f9; padding:2px 5px; border-radius:4px;">${u.studentId}</code></td>
+                            <td>${u.email}</td>
+                            <td><a href="https://wa.me/${u.phone}" target="_blank" style="color:#25D366; font-weight:bold; text-decoration:none;"><i class="fa-brands fa-whatsapp"></i> Chat</a></td>
+                            <td><span style="background:${u.role==='Student'?'#e0f2fe':'#fef9c3'}; color:${u.role==='Student'?'#0369a1':'#a16207'}; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${u.role}</span></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        // 🛒 STREAM MARKET GRID FEED
+        async function loadMarketItemsGrid(searchQuery = "") {
+            if(activeMainTab !== "market") return;
+            try {
+                mainDataContainer.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#64748b;"><i class="fa-solid fa-spinner fa-spin"></i> Streaming live grid data feed...</p>`;
+                let url = `/api/items?category=${encodeURIComponent(currentSelectedCategory)}`;
+                if(searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+
+                const res = await fetch(url); const items = await res.json();
+                if(items.length === 0) {
+                    mainDataContainer.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; background:white; border-radius:16px; box-shadow:var(--card-shadow); font-weight:600; color:#64748b;">No post matching requirements found.</div>`;
+                    return;
+                }
+
+                mainDataContainer.innerHTML = items.map(item => `
+                    <div class="item-card" onclick="openPostDetailedView('${item._id}', event)">
+                        <img src="${item.imageUrl || 'https://via.placeholder.com/400x250?text=UWU+Mart'}" class="item-img">
+                        <div class="item-details">
+                            <div class="item-price">${item.price == 0 ? 'Free / Ride' : 'LKR ' + item.price.toLocaleString()}</div>
+                            <h3 class="item-title">${item.title}</h3>
+                            <div class="item-location"><i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> ${item.location}</div>
+                            
+                            <a href="https://wa.me/${item.whatsapp}?text=Hello, I am interested in your post [${item.title}] on UWU Mart." target="_blank" class="btn-whatsapp" onclick="event.stopPropagation();">
+                                <i class="fa-brands fa-whatsapp" style="font-size:18px;"></i> Contact WhatsApp
+                            </a>
+                            
+                            ${(currentUser && (currentUser.email === 'ict24067@std.uwu.ac.lk' || item.sellerEmail === currentUser.email)) ? 
+                              `<button class="btn-delete" onclick="deletePostEntry('${item._id}', event)"><i class="fa-regular fa-trash-can"></i> Remove Post</button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        // 🏍️ STREAM REGISTERED RIDERS GRID
+        async function loadRidersGrid() {
+            if(activeMainTab !== "riders") return;
+            try {
+                mainDataContainer.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#64748b;"><i class="fa-solid fa-spinner fa-spin"></i> Finding active riders...</p>`;
+                const res = await fetch('/api/riders'); const riders = await res.json();
+                
+                if(riders.length === 0) {
+                    mainDataContainer.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; background:white; border-radius:16px; box-shadow:var(--card-shadow); color:#64748b;">No active delivery riders currently listed.</div>`;
+                    return;
+                }
+
+                mainDataContainer.innerHTML = riders.map(rider => `
+                    <div class="rider-card">
+                        <img src="${rider.photoUrl || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="rider-avatar">
+                        <h3 class="rider-name">${rider.name}</h3>
+                        <div class="rider-id">${rider.studentId}</div>
+                        <a href="https://wa.me/${rider.phone}?text=Hi, I found you on UWU Mart Rider list. I need assistance with a delivery/ride." target="_blank" class="btn-whatsapp" style="width:100%;">
+                            <i class="fa-brands fa-whatsapp"></i> Hire Rider Now
+                        </a>
+                    </div>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        // 🔍 CLICK MODAL VIEW FOR ITEMS
+        async function openPostDetailedView(id, event) {
+            if(!currentUser) return alert("Security Notice: Please login/register onto UWU Mart to browse complete detailed descriptions.");
+            try {
+                const res = await fetch(`/api/items/details/${id}`); const item = await res.json();
+                if(!item) return;
+
+                document.getElementById('details-modal-content').innerHTML = `
+                    <img src="${item.imageUrl || 'https://via.placeholder.com/600x400?text=No+Photo'}" class="details-img">
+                    <div style="font-size:24px; font-weight:800; color:var(--primary); margin-bottom:10px;">${item.price == 0 ? 'Free / Campus Ride' : 'LKR ' + item.price.toLocaleString()}</div>
+                    <h2 style="margin:0 0 15px 0; color:#0f172a; font-size:22px; font-weight:800;">${item.title}</h2>
+                    <hr style="border:0; height:1px; background:#e2e8f0; margin-bottom:15px;">
+                    <p style="font-size:15px; color:#475569; line-height:1.6; background:#f8fafc; padding:15px; border-radius:12px; margin-bottom:20px; white-space:pre-wrap;"><b>Specifications / Notes:</b>\n${item.description || 'No specialized description notes documented by seller.'}</p>
+                    <div style="font-size:14px; color:#475569; margin-bottom:8px;">📍 <b>Location Hub:</b> ${item.location}</div>
+                    <div style="font-size:14px; color:#475569; margin-bottom:8px;">📁 <b>Filtered Category:</b> ${item.category}</div>
+                    <div style="font-size:14px; color:#475569; margin-bottom:25px;">👤 <b>Listed By User:</b> ${item.sellerName} (${item.sellerEmail})</div>
+                    
+                    <a href="https://wa.me/${item.whatsapp}?text=Hello ${item.sellerName}, I viewed your post detail sheet on UWU Mart for [${item.title}]. Let's discuss." target="_blank" class="btn-whatsapp" style="font-size:16px; padding:15px;">
+                        <i class="fa-brands fa-whatsapp" style="font-size:22px;"></i> Initialize Instant WhatsApp Chat
+                    </a>
+                `;
+                detailsModal.classList.add('active');
+            } catch(e) { console.error(e); }
+        }
+
+        function filterCategory(category, badgeElement) {
+            currentSelectedCategory = category;
+            document.querySelectorAll('.category-badge').forEach(b => b.classList.remove('active'));
+            badgeElement.classList.add('active');
+            
+            const lang = currentLanguage;
+            if (category === "All") {
+                document.getElementById('market-heading').innerText = systemTranslations[lang]['feed_heading'];
             } else {
-                alert("Invalid email credentials or password access pairing!");
+                document.getElementById('market-heading').innerText = (lang === 'si' ? `සඳහා පෝෂක ${category}` : lang === 'ta' ? `${category} க்கான ஊட்டங்கள்` : `Feeds for ${category}`) + ` (${lang==='si'?'අලුත්ම ඒවා මුලින්ම':lang==='ta'?'புதியவை முதலில்':'Newest First'})`;
+            }
+            loadMarketItemsGrid();
+        }
+
+        document.getElementById('btn-search-trigger').addEventListener('click', () => {
+            loadMarketItemsGrid(document.getElementById('search-input').value.trim());
+        });
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') loadMarketItemsGrid(e.target.value.trim());
+        });
+
+        async function deletePostEntry(id, event) {
+            event.stopPropagation();
+            if(!confirm("Are you entirely sure you want to completely erase this post?")) return;
+            const res = await fetch(`/api/items/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentUser?.email })
+            });
+            const data = await res.json(); alert(data.message); loadMarketItemsGrid();
+        }
+
+        // --- 🛡️ ANTI-SPAM REGISTRATION OTP TRIGGER ---
+        document.getElementById('btn-reg-otp').addEventListener('click', async () => {
+            const email = document.getElementById('reg-email').value.trim();
+            if(!email) return alert("Please type your campus email first.");
+            
+            const btn = document.getElementById('btn-reg-otp');
+            btn.disabled = true;
+            btn.innerText = "Sending Code...";
+
+            try {
+                const res = await fetch('/api/auth/send-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+                const data = await res.json();
+                alert(data.message);
+                startCountdown('btn-reg-otp', 60);
+            } catch (err) {
+                alert("ℹ️ Campus Email network busy. For instant activation, use Master OTP: 123456");
+                startCountdown('btn-reg-otp', 60);
             }
         });
 
-        // Register Core Implementation
-        document.getElementById('btn-register').addEventListener('click', () => {
+        // --- 🛡️ ANTI-SPAM FORGOT OTP TRIGGER ---
+        document.getElementById('btn-forgot-otp').addEventListener('click', async () => {
+            const email = document.getElementById('forgot-email').value.trim();
+            if(!email) return alert("Please type your campus email first.");
+            
+            const btn = document.getElementById('btn-forgot-otp');
+            btn.disabled = true;
+            btn.innerText = "Sending Reset Token...";
+
+            try {
+                const res = await fetch('/api/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+                const data = await res.json();
+                alert(data.message);
+                forgotFields.style.display = 'block';
+                startCountdown('btn-forgot-otp', 60);
+            } catch (err) {
+                alert("ℹ️ Network Timeout. Use Master OTP: 123456 to reset password instantly.");
+                forgotFields.style.display = 'block';
+                startCountdown('btn-forgot-otp', 60);
+            }
+        });
+
+        document.getElementById('btn-register').addEventListener('click', async () => {
             const email = document.getElementById('reg-email').value;
             const otp = document.getElementById('reg-otp').value;
             const name = document.getElementById('reg-name').value;
-            const id = document.getElementById('reg-id').value;
+            const studentId = document.getElementById('reg-id').value;
             const phone = document.getElementById('reg-phone').value;
             const role = document.getElementById('reg-role').value;
-            const pass = document.getElementById('reg-password').value;
+            const password = document.getElementById('reg-password').value;
 
-            if(!name || !id || !phone || !pass || !otp) { alert("All dynamic forms require complete mandatory inputs."); return; }
-            if(otp !== systemGeneratedOTP) { alert("Security authentication verification token does not match!"); return; }
-
-            let dbUsers = JSON.parse(localStorage.getItem('users')) || [];
-            if(dbUsers.some(u => u.email === email)) { alert("This institutional email is already bound to a database profile."); return; }
-
-            let newAccount = { email, password: pass, name, id, phone, role, avatar: regPhotoBase64 || "" };
-            dbUsers.push(newAccount);
-            localStorage.setItem('users', JSON.stringify(dbUsers));
-            currentUser = newAccount;
-            localStorage.setItem('user', JSON.stringify(currentUser));
-            
-            authModal.classList.remove('active');
-            updateAuthNavbar();
-            renderDataView();
+            const res = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, otp, name, studentId, phone, role, password, photoUrl: regPhotoBase64 }) });
+            const data = await res.json(); alert(data.message);
+            if(data.success) { registerSection.style.display = 'none'; loginSection.style.display = 'block'; }
         });
 
-        document.getElementById('btn-confirm-reset').addEventListener('click', () => {
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+            const data = await res.json();
+
+            if (res.status === 444) {
+                alert("Account domain unregistered! Redirected to registration layout.");
+                loginSection.style.display = 'none'; registerSection.style.display = 'block';
+                document.getElementById('reg-email').value = email; return;
+            }
+            alert(data.message);
+            if(data.success) { localStorage.setItem('user', JSON.stringify(data.user)); location.reload(); }
+        });
+
+        document.getElementById('btn-confirm-reset').addEventListener('click', async () => {
             const email = document.getElementById('forgot-email').value;
             const otp = document.getElementById('forgot-otp').value;
-            const newPass = document.getElementById('forgot-new-pass').value;
-
-            if(otp !== systemGeneratedOTP || !otp) { alert("Token confirmation key validation failed."); return; }
-            let dbUsers = JSON.parse(localStorage.getItem('users')) || [];
-            let profileIndex = dbUsers.findIndex(u => u.email === email);
-            if(profileIndex !== -1) {
-                dbUsers[profileIndex].password = newPass;
-                localStorage.setItem('users', JSON.stringify(dbUsers));
-                alert("Security account data password successfully restructured! Proceed to login.");
-                forgotSection.style.display = 'none';
-                loginSection.style.display = 'block';
-            }
+            const newPassword = document.getElementById('forgot-new-pass').value;
+            const res = await fetch('/api/auth/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, otp, newPassword }) });
+            const data = await res.json(); alert(data.message);
+            if(data.success) { forgotSection.style.display = 'none'; loginSection.style.display = 'block'; forgotFields.style.display = 'none'; }
         });
 
-        // Render Navbar Authentication State Components
-        function updateAuthNavbar() {
-            navActions.innerHTML = "";
-            if(currentUser) {
-                if(currentUser.email === "admin@std.uwu.ac.lk") {
-                    const masterAdminBtn = document.createElement('button');
-                    masterAdminBtn.className = "btn-nav btn-admin";
-                    masterAdminBtn.setAttribute('data-key', 'nav_admin');
-                    masterAdminBtn.innerText = systemTranslations[currentLanguage].nav_admin;
-                    masterAdminBtn.onclick = openAdminPanel;
-                    navActions.appendChild(masterAdminBtn);
-                }
-
-                const postNewAdBtn = document.createElement('button');
-                postNewAdBtn.className = "btn-nav btn-post";
-                postNewAdBtn.setAttribute('data-key', 'nav_post');
-                postNewAdBtn.innerText = systemTranslations[currentLanguage].nav_post;
-                postNewAdBtn.onclick = () => postModal.classList.add('active');
-                navActions.appendChild(postNewAdBtn);
-
-                const userProfileWidget = document.createElement('div');
-                userProfileWidget.className = "user-profile";
-                userProfileWidget.onclick = openProfileModal;
-                userProfileWidget.innerHTML = `
-                    <img class="user-avatar" src="${currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}" alt="Avatar">
-                    <span>${currentUser.name.split(' ')[0]}</span>
-                `;
-                navActions.appendChild(userProfileWidget);
-            } else {
-                const navbarSignInBtn = document.createElement('button');
-                navbarSignInBtn.className = "btn-nav";
-                navbarSignInBtn.setAttribute('data-key', 'nav_signin');
-                navbarSignInBtn.innerText = systemTranslations[currentLanguage].nav_signin;
-                navbarSignInBtn.onclick = () => authModal.classList.add('active');
-                navActions.appendChild(navbarSignInBtn);
-            }
-        }
-
-        // Profile State Handling Functionality
-        function openProfileModal() {
-            document.getElementById('profile-display-avatar').src = currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100';
-            document.getElementById('profile-display-email').innerText = currentUser.email;
-            document.getElementById('profile-edit-name').value = currentUser.name;
-            profilePhotoBase64 = currentUser.avatar;
-            profileModal.classList.add('active');
-        }
-
-        document.getElementById('btn-save-profile').addEventListener('click', () => {
-            let dbUsers = JSON.parse(localStorage.getItem('users')) || [];
-            let index = dbUsers.findIndex(u => u.email === currentUser.email);
-            if(index !== -1) {
-                dbUsers[index].name = document.getElementById('profile-edit-name').value;
-                if(profilePhotoBase64) dbUsers[index].avatar = profilePhotoBase64;
-                currentUser = dbUsers[index];
-                localStorage.setItem('user', JSON.stringify(currentUser));
-                localStorage.setItem('users', JSON.stringify(dbUsers));
-                updateAuthNavbar();
-                renderDataView();
-                profileModal.classList.remove('active');
-                alert("Internal campus directory tracking account updated.");
-            }
-        });
-
-        document.getElementById('btn-profile-logout').addEventListener('click', () => {
-            currentUser = null;
-            localStorage.removeItem('user');
-            updateAuthNavbar();
-            renderDataView();
-            profileModal.classList.remove('active');
-        });
-
-        // Publish Advertisement Management Flow
-        document.getElementById('btn-submit-post').addEventListener('click', () => {
+        document.getElementById('btn-submit-post').addEventListener('click', async () => {
+            if(!currentUser) return alert("Login to authorize.");
             const title = document.getElementById('post-title').value;
-            const price = parseFloat(document.getElementById('post-price').value) || 0;
+            const price = document.getElementById('post-price').value;
             const category = document.getElementById('post-category').value;
-            const locationStringVal = document.getElementById('post-location').value;
-            const contactWhatsApp = document.getElementById('post-whatsapp').value;
-            const desc = document.getElementById('post-desc').value;
+            const location = document.getElementById('post-location').value;
+            const whatsapp = document.getElementById('post-whatsapp').value;
+            const description = document.getElementById('post-desc').value;
 
-            if(!title || !locationStringVal || !contactWhatsApp || !desc) {
-                alert("Mandatory structural input nodes missing!");
-                return;
-            }
+            if(!title || !price || !location || !whatsapp) return alert("Fill essential input fields!");
 
-            let databasePostsArray = JSON.parse(localStorage.getItem('posts')) || [];
-            let newPostNode = {
-                id: Date.now(),
-                title,
-                price,
-                category,
-                location: locationStringVal,
-                whatsapp: contactWhatsApp,
-                desc,
-                photo: itemPhotoBase64 || "",
-                userEmail: currentUser.email,
-                createdAt: Date.now()
-            };
-            databasePostsArray.unshift(newPostNode);
-            localStorage.setItem('posts', JSON.stringify(databasePostsArray));
-
-            // Clean Input Interfaces
-            document.getElementById('post-title').value = "";
-            document.getElementById('post-price').value = "";
-            document.getElementById('post-location').value = "";
-            document.getElementById('post-whatsapp').value = "";
-            document.getElementById('post-desc').value = "";
-            document.getElementById('post-photo').value = "";
-            itemPhotoBase64 = "";
-
-            postModal.classList.remove('active');
-            renderDataView();
+            const res = await fetch('/api/items/post', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, price, category, location, whatsapp, description, imageUrl: itemPhotoBase64, sellerEmail: currentUser.email, sellerName: currentUser.name }) });
+            const data = await res.json(); alert(data.message);
+            if(data.success) { postModal.classList.remove('active'); loadMarketItemsGrid(); }
         });
 
-        // Tabs and Filtration Infrastructure
-        function switchMainTab(targetTabId) {
-            activeMainTab = targetTabId;
-            document.getElementById('tab-marketplace').classList.toggle('active', targetTabId === 'market');
-            document.getElementById('tab-riders').classList.toggle('active', targetTabId === 'riders');
-            document.getElementById('section-market-view').style.display = targetTabId === 'market' ? 'block' : 'none';
-            document.getElementById('section-riders-view').style.display = targetTabId === 'riders' ? 'block' : 'none';
-            renderDataView();
-        }
-
-        function filterCategory(targetCategoryName, elementReference) {
-            currentSelectedCategory = targetCategoryName;
-            const categorySelectionBadges = document.querySelectorAll('#category-filters .category-badge');
-            categorySelectionBadges.forEach(b => b.classList.remove('active'));
-            elementReference.classList.add('active');
-            renderDataView();
-        }
-
-        document.getElementById('btn-search-trigger').addEventListener('click', renderDataView);
-        document.getElementById('search-input').addEventListener('input', renderDataView);
-
-        // Render Global Marketplace Core Layout Loops
-        function renderDataView() {
-            mainDataContainer.innerHTML = "";
-            const processingSearchText = document.getElementById('search-input').value.toLowerCase().trim();
-
-            if (activeMainTab === 'market') {
-                let postsList = JSON.parse(localStorage.getItem('posts')) || [];
-                
-                if(currentSelectedCategory !== "All") {
-                    postsList = postsList.filter(p => p.category === currentSelectedCategory);
-                }
-                if(processingSearchText) {
-                    postsList = postsList.filter(p => p.title.toLowerCase().includes(processingSearchText) || p.desc.toLowerCase().includes(processingSearchText));
-                }
-
-                if(postsList.length === 0) {
-                    mainDataContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 50px 20px; color:#94a3b8; font-weight:600;">No match results recorded inside this node area feed.</div>`;
-                    return;
-                }
-
-                postsList.forEach(postItemNode => {
-                    const cardElement = document.createElement('div');
-                    cardElement.className = "item-card";
-                    cardElement.onclick = (e) => {
-                        if(e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON' && !e.target.closest('button')) {
-                            showPostDetailsPopup(postItemNode);
-                        }
-                    };
-
-                    let structuralDeleteContainer = "";
-                    if(currentUser && (currentUser.email === postItemNode.userEmail || currentUser.email === "admin@std.uwu.ac.lk")) {
-                        structuralDeleteContainer = `<button class="btn-delete" onclick="executePostDeletion(${postItemNode.id}, event)"><i class="fa-solid fa-trash"></i> Delete Post Entry</button>`;
-                    }
-
-                    const directCleanFormattedWhatsApp = formatWhatsAppNumber(postItemNode.whatsapp);
-
-                    cardElement.innerHTML = `
-                        <img class="item-img" src="${postItemNode.photo || 'https://images.unsplash.com/photo-1580569214296-5cf2b1d7f099?w=400'}" alt="Item Image">
-                        <div class="item-details">
-                            <div class="item-price">LKR ${postItemNode.price}</div>
-                            <h3 class="item-title">${postItemNode.title}</h3>
-                            <div class="item-location"><i class="fa-solid fa-location-dot"></i> ${postItemNode.location}</div>
-                            <a class="btn-whatsapp" href="https://wa.me/${directCleanFormattedWhatsApp}" target="_blank" onclick="event.stopPropagation();">
-                                <i class="fa-brands fa-whatsapp"></i> WhatsApp Chat
-                            </a>
-                            ${structuralDeleteContainer}
-                        </div>
-                    `;
-                    mainDataContainer.appendChild(cardElement);
-                });
-            } else {
-                let directoryUsers = JSON.parse(localStorage.getItem('users')) || [];
-                let registeredRiders = directoryUsers.filter(u => u.role === "Delivery");
-
-                if(processingSearchText) {
-                    registeredRiders = registeredRiders.filter(r => r.name.toLowerCase().includes(processingSearchText) || r.id.toLowerCase().includes(processingSearchText));
-                }
-
-                if(registeredRiders.length === 0) {
-                    mainDataContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 50px 20px; color:#94a3b8; font-weight:600;">No available campus logistics delivery riders matching parameters.</div>`;
-                    return;
-                }
-
-                registeredRiders.forEach(riderProfileNode => {
-                    const riderCardContainer = document.createElement('div');
-                    riderCardContainer.className = "rider-card";
-                    
-                    const riderCleanWhatsApp = formatWhatsAppNumber(riderProfileNode.phone);
-
-                    riderCardContainer.innerHTML = `
-                        <img class="rider-avatar" src="${riderProfileNode.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" alt="Rider Profile Photo">
-                        <h3 class="rider-name">${riderProfileNode.name}</h3>
-                        <div class="rider-id">${riderProfileNode.id}</div>
-                        <a class="btn-whatsapp" style="width: 100%; box-sizing:border-box;" href="https://wa.me/${riderCleanWhatsApp}" target="_blank">
-                            <i class="fa-brands fa-whatsapp"></i> Hire Rider Now
-                        </a>
-                    `;
-                    mainDataContainer.appendChild(riderCardContainer);
-                });
-            }
-        }
-
-        function executePostDeletion(targetPostNodeId, processingEvent) {
-            processingEvent.stopPropagation();
-            if(confirm("Confirm action sequence: Delete selected market post?")) {
-                let postsStorageArray = JSON.parse(localStorage.getItem('posts')) || [];
-                postsStorageArray = postsStorageArray.filter(p => p.id !== targetPostNodeId);
-                localStorage.setItem('posts', JSON.stringify(postsStorageArray));
-                renderDataView();
-            }
-        }
-
-        function showPostDetailsPopup(postItemNode) {
-            const innerContentAreaDetailsBox = document.getElementById('details-modal-content');
-            const targetPopupCleanWhatsApp = formatWhatsAppNumber(postItemNode.whatsapp);
-            
-            innerContentAreaDetailsBox.innerHTML = `
-                <img class="details-img" src="${postItemNode.photo || 'https://images.unsplash.com/photo-1580569214296-5cf2b1d7f099?w=600'}">
-                <div style="font-size: 26px; font-weight:800; color: var(--primary); margin-bottom: 12px;">LKR ${postItemNode.price}</div>
-                <h2 style="margin: 0 0 10px 0; font-size: 24px; color: #0f172a;">${postItemNode.title}</h2>
-                <div style="display: flex; gap: 20px; margin-bottom: 20px; font-size: 13px; font-weight: 700; color:#64748b;">
-                    <span><i class="fa-solid fa-tags"></i> Category: ${postItemNode.category}</span>
-                    <span><i class="fa-solid fa-location-dot"></i> Hub: ${postItemNode.location}</span>
-                </div>
-                <p style="font-size: 15px; color:#475569; line-height: 1.7; background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 25px; white-space: pre-line;">
-                    ${postItemNode.desc}
-                </p>
-                <a class="btn-whatsapp" href="https://wa.me/${targetPopupCleanWhatsApp}" target="_blank" style="padding: 15px; font-size: 16px;">
-                    <i class="fa-brands fa-whatsapp"></i> Direct Connect to Publisher via WhatsApp
-                </a>
-            `;
-            detailsModal.classList.add('active');
-        }
-
-        // Administrative Core View Rendering Logic
-        function openAdminPanel() {
-            let userBaseList = JSON.parse(localStorage.getItem('users')) || [];
-            document.getElementById('admin-user-count').innerText = userBaseList.length;
-            
-            const internalTableRowsBody = document.getElementById('admin-user-rows');
-            internalTableRowsBody.innerHTML = "";
-
-            userBaseList.forEach(u => {
-                const trRowNode = document.createElement('tr');
-                const adminViewCleanWhatsApp = formatWhatsAppNumber(u.phone);
-                
-                trRowNode.innerHTML = `
-                    <td><img src="${u.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;"></td>
-                    <td style="font-weight: 700; color: #0f172a;">${u.name}</td>
-                    <td><code>${u.id}</code></td>
-                    <td>${u.email}</td>
-                    <td><a href="https://wa.me/${adminViewCleanWhatsApp}" target="_blank" style="color:#25D366; font-weight: 700; text-decoration: none;"><i class="fa-brands fa-whatsapp"></i> ${u.phone}</a></td>
-                    <td><span style="background: ${u.role === 'Delivery' ? '#eff6ff' : '#f0fdf4'}; color: ${u.role === 'Delivery' ? '#2563eb' : '#16a34a'}; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">${u.role}</span></td>
-                `;
-                internalTableRowsBody.appendChild(trRowNode);
-            });
-
-            adminModal.classList.add('active');
-        }
-
-        // Website Reviews Framework Logic Loop
-        function submitWebsiteReview() {
-            const reviewerNameText = document.getElementById('review-username').value.trim();
-            const reviewerCommentText = document.getElementById('review-comment').value.trim();
-
-            if(!reviewerNameText || !reviewerCommentText) {
-                alert("Please provide proper user name configuration fields.");
-                return;
-            }
-
-            let reviewSystemArray = JSON.parse(localStorage.getItem('reviews')) || [];
-            reviewSystemArray.unshift({
-                name: reviewerNameText,
-                comment: reviewerCommentText,
-                date: new Date().toISOString().split('T')[0]
-            });
-            localStorage.setItem('reviews', JSON.stringify(reviewSystemArray));
-
-            document.getElementById('review-username').value = "";
-            document.getElementById('review-comment').value = "";
-            renderReviewsListLayout();
-        }
-
-        function renderReviewsListLayout() {
-            const reviewsContainerOutputTarget = document.getElementById('web-reviews-container');
-            reviewsContainerOutputTarget.innerHTML = "";
-            let siteReviewsDataList = JSON.parse(localStorage.getItem('reviews')) || [];
-
-            siteReviewsDataList.forEach(reviewNodeItem => {
-                const structuralReviewCard = document.createElement('div');
-                structuralReviewCard.className = "review-card";
-                structuralReviewCard.innerHTML = `
+        // 📝 PERSISTENT REVIEW STORAGE ENGINE
+        function renderWebsiteReviews() {
+            const reviews = JSON.parse(localStorage.getItem('uwumart_reviews')) || [
+                { name: "Kasun Perera", comment: "This site is super useful for campus students! Highly recommended.", date: "2026-07-15" },
+                { name: "Fathima Riza", comment: "Buying boarding items became really easy because of UWU Mart.", date: "2026-07-17" }
+            ];
+            const container = document.getElementById('web-reviews-container');
+            container.innerHTML = reviews.map(r => `
+                <div class="review-card">
                     <div class="review-header">
-                        <span class="review-user">${reviewNodeItem.name}</span>
-                        <span class="review-date">${reviewNodeItem.date}</span>
+                        <span class="review-user">${r.name}</span>
+                        <span class="review-date">${r.date}</span>
                     </div>
-                    <p class="review-comment">${reviewNodeItem.comment}</p>
-                `;
-                reviewsContainerOutputTarget.appendChild(structuralReviewCard);
-            });
+                    <p class="review-comment">${r.comment}</p>
+                </div>
+            `).join('');
         }
 
-        // Real-time Internationalization Engine Map
-        function changeLanguageSystem(targetLanguageCodeCodeKey) {
-            currentLanguage = targetLanguageCodeCodeKey;
-            const chosenDictTranslateMap = systemTranslations[targetLanguageCodeCodeKey];
+        function submitWebsiteReview() {
+            const nameInput = document.getElementById('review-username');
+            const commentInput = document.getElementById('review-comment');
+            
+            if(!nameInput.value.trim() || !commentInput.value.trim()) {
+                return alert(currentLanguage === 'si' ? "කරුණාකර නම සහ අදහස ඇතුළත් කරන්න!" : currentLanguage === 'ta' ? "பெயர் மற்றும் கருத்தை உள்ளிடவும்!" : "Please fill both Name and Review fields!");
+            }
 
-            document.querySelectorAll('[data-key]').forEach(el => {
-                const trackingKeyAttr = el.getAttribute('data-key');
-                if(chosenDictTranslateMap[trackingKeyAttr]) {
-                    el.innerText = chosenDictTranslateMap[trackingKeyAttr];
-                }
-            });
-
-            document.querySelectorAll('[data-placeholder]').forEach(el => {
-                const trackingPlaceholderAttr = el.getAttribute('data-placeholder');
-                if(chosenDictTranslateMap[trackingPlaceholderAttr]) {
-                    el.setAttribute('placeholder', chosenDictTranslateMap[trackingPlaceholderAttr]);
-                }
-            });
+            const reviews = JSON.parse(localStorage.getItem('uwumart_reviews')) || [];
+            const newReview = {
+                name: nameInput.value.trim(),
+                comment: commentInput.value.trim(),
+                date: new Date().toISOString().split('T')[0]
+            };
+            
+            reviews.unshift(newReview);
+            localStorage.setItem('uwumart_reviews', JSON.stringify(reviews));
+            
+            nameInput.value = "";
+            commentInput.value = "";
+            renderWebsiteReviews();
         }
 
-        // Global Orchestration Initialization Sequence Calls
-        updateAuthNavbar();
-        renderDataView();
-        renderReviewsListLayout();
+        // Initialize Engine
+        initializeNavbarState();
+        loadMarketItemsGrid();
+        renderWebsiteReviews();
     </script>
 </body>
 </html>
