@@ -121,12 +121,11 @@
         th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
         th { background: #f8fafc; color: #475569; }
 
-        /* 📱 UNIVERSAL MOBILE RESPONSIVE MEDIA QUERIES (HAMBURGER INTRODUCED) */
+        /* 📱 UNIVERSAL MOBILE RESPONSIVE MEDIA QUERIES */
         @media (max-width: 768px) {
             .navbar { padding: 12px 20px; }
             .logo { font-size: 18px; letter-spacing: 0.5px; }
             
-            /* Hide Buttons inside Hamburger Overlay */
             .menu-toggle { display: block; }
             .nav-buttons { 
                 display: none; 
@@ -187,7 +186,7 @@
                 <option value="ta">தமிழ்</option>
             </select>
             
-            <!-- Three Lines Hamburger Menu for Clutter-free Premium look -->
+            <!-- Hamburger Menu for Mobile -->
             <div class="menu-toggle" id="mobile-hamburger-btn"><i class="fa-solid fa-bars"></i></div>
             
             <div class="nav-buttons" id="nav-actions">
@@ -361,7 +360,7 @@
         </div>
     </div>
 
-    <!-- 👑 TOP SECRET SECURED MASTER ADMIN MANAGEMENT PANEL -->
+    <!-- 👑 MASTER ADMIN MANAGEMENT PANEL -->
     <div class="modal-overlay" id="admin-modal">
         <div class="admin-box">
             <span class="close-modal" id="btn-close-admin">&times;</span>
@@ -494,7 +493,6 @@
             navActions.classList.toggle('active');
         });
 
-        // Close dropdown when clicking a nav button
         navActions.addEventListener('click', (e) => {
             if(e.target.tagName === 'BUTTON' || e.target.closest('.user-profile')) {
                 navActions.classList.remove('active');
@@ -513,15 +511,21 @@
         document.getElementById('link-goto-register').addEventListener('click', (e) => { e.preventDefault(); loginSection.style.display = 'none'; registerSection.style.display = 'block'; });
         document.getElementById('link-goto-login').addEventListener('click', (e) => { e.preventDefault(); registerSection.style.display = 'none'; loginSection.style.display = 'block'; });
         
-        // 🧠 CRITICAL WHATSAPP NUMBER SANITATION AND ENGINE FIXES
-        // Converts zero-prefixed local numbers (e.g., 0771234567) or raw formats to the international standard (94771234567) required by the WhatsApp API.
+        // 🛠️ BULLETPROOF WHATSAPP NUMBER SANITATION ENGINE (FIXED)
         function formatWhatsAppNumber(phone) {
-            let cleaned = phone.replace(/\D/g, ''); // Strip non-numeric artifacts
+            let cleaned = phone.replace(/\D/g, ''); 
+
+            if (cleaned.startsWith('94') && cleaned.length === 11) {
+                return cleaned;
+            }
+
             if (cleaned.startsWith('0')) {
                 cleaned = '94' + cleaned.substring(1);
-            } else if (cleaned.length === 9 && (cleaned.startsWith('7') || cleaned.startsWith('1') || cleaned.startsWith('6') || cleaned.startsWith('5') || cleaned.startsWith('8'))) {
+            } 
+            else if (!cleaned.startsWith('94')) {
                 cleaned = '94' + cleaned;
             }
+
             return cleaned;
         }
 
@@ -836,7 +840,6 @@
                         structuralDeleteContainer = `<button class="btn-delete" onclick="executePostDeletion(${postItemNode.id}, event)"><i class="fa-solid fa-trash"></i> Delete Post Entry</button>`;
                     }
 
-                    // Applying Fixed Sanitized WhatsApp Target Path Linking Architecture
                     const directCleanFormattedWhatsApp = formatWhatsAppNumber(postItemNode.whatsapp);
 
                     cardElement.innerHTML = `
@@ -854,7 +857,6 @@
                     mainDataContainer.appendChild(cardElement);
                 });
             } else {
-                // Riders Layout Rendering Node Loop
                 let directoryUsers = JSON.parse(localStorage.getItem('users')) || [];
                 let registeredRiders = directoryUsers.filter(u => u.role === "Delivery");
 
@@ -871,7 +873,6 @@
                     const riderCardContainer = document.createElement('div');
                     riderCardContainer.className = "rider-card";
                     
-                    // Injecting Sanitized WhatsApp Path to Rider Contact Architecture
                     const riderCleanWhatsApp = formatWhatsAppNumber(riderProfileNode.phone);
 
                     riderCardContainer.innerHTML = `
