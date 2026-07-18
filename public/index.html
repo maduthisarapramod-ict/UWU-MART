@@ -20,7 +20,14 @@
         /* 🌐 PREMIUM GLASSMORPHISM NAVBAR */
         .navbar { background: rgba(0, 102, 67, 0.95); backdrop-filter: blur(10px); color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .logo { font-size: 24px; font-weight: 800; letter-spacing: 1.5px; cursor: pointer; }
+        
+        /* Language & Menu Controls */
+        .nav-right-container { display: flex; align-items: center; gap: 15px; }
+        .lang-dropdown { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 5px 10px; border-radius: 20px; font-weight: 600; cursor: pointer; outline: none; font-size: 13px; }
+        .lang-dropdown option { color: #0f172a; }
+        
         .nav-buttons { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle { display: none; font-size: 22px; cursor: pointer; color: white; transition: 0.2s; }
         
         .btn-nav { background: white; color: var(--primary); border: none; padding: 10px 22px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 14px; }
         .btn-nav:hover { background: #f1f5f9; transform: translateY(-2px); }
@@ -79,6 +86,17 @@
         .rider-name { font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 5px 0; }
         .rider-id { background: #f1f5f9; padding: 3px 10px; border-radius: 6px; font-size: 12px; color: #475569; font-weight: 600; margin-bottom: 15px; }
 
+        /* 📝 REVIEW SYSTEM STYLES */
+        .reviews-section { background: white; border-radius: 20px; padding: 30px; box-shadow: var(--card-shadow); margin-top: 50px; border: 1px solid #e2e8f0; }
+        .review-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; background: #f8fafc; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0; }
+        .review-form input, .review-form textarea { background: white; }
+        .reviews-list { display: flex; flex-direction: column; gap: 15px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .review-card { background: #f8fafc; border-left: 4px solid var(--primary); padding: 15px; border-radius: 0 12px 12px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .review-user { font-weight: 700; color: #0f172a; font-size: 14px; }
+        .review-date { font-size: 11px; color: #94a3b8; }
+        .review-comment { font-size: 14px; color: #475569; margin: 0; line-height: 1.5; }
+
         /* 🔒 MODAL POPUPS STRUCTURE */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 100000; opacity: 0; pointer-events: none; transition: 0.3s; padding: 15px; box-sizing: border-box; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -103,53 +121,38 @@
         th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
         th { background: #f8fafc; color: #475569; }
 
-        /* 📱 UNIVERSAL MOBILE RESPONSIVE MEDIA QUERIES (FIXED UPPER CUT EXPANSION) */
+        /* 📱 UNIVERSAL MOBILE RESPONSIVE MEDIA QUERIES (HAMBURGER INTRODUCED) */
         @media (max-width: 768px) {
-            .navbar { 
-                padding: 10px 15px; 
-                flex-direction: row; 
-                justify-content: space-between; 
-                align-items: center; 
-                gap: 10px; 
-            }
-            .logo { 
-                font-size: 18px; 
-                letter-spacing: 0.5px; 
-                white-space: nowrap;
-            }
+            .navbar { padding: 12px 20px; }
+            .logo { font-size: 18px; letter-spacing: 0.5px; }
+            
+            /* Hide Buttons inside Hamburger Overlay */
+            .menu-toggle { display: block; }
             .nav-buttons { 
-                display: flex; 
-                flex-direction: row; 
-                align-items: center; 
-                justify-content: flex-end; 
-                gap: 6px; 
-                width: auto; 
-                max-width: 65%;
-                overflow-x: auto; 
-                white-space: nowrap;
-                scrollbar-width: none;
-            }
-            .nav-buttons::-webkit-scrollbar { 
                 display: none; 
+                flex-direction: column; 
+                position: absolute; 
+                top: 55px; 
+                right: 20px; 
+                background: rgba(0, 80, 52, 0.98); 
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+                padding: 20px; 
+                border-radius: 16px; 
+                width: 180px; 
+                gap: 12px; 
+                z-index: 100000;
+                border: 1px solid rgba(255,255,255,0.1);
             }
+            .nav-buttons.active { display: flex; }
             .nav-buttons button, .nav-buttons .btn-nav, .nav-buttons .user-profile {
-                width: auto !important;
-                padding: 6px 12px !important;
-                font-size: 12px !important;
-                margin: 0 !important;
-                display: inline-flex !important;
-                align-items: center;
+                width: 100% !important;
+                padding: 10px 15px !important;
+                font-size: 13px !important;
+                box-sizing: border-box;
                 justify-content: center;
-                gap: 4px;
-                border-radius: 20px !important;
             }
-            .user-profile { 
-                padding: 4px 10px !important; 
-            }
-            .user-avatar { 
-                width: 24px !important; 
-                height: 24px !important; 
-            }
+            .user-profile { background: rgba(255,255,255,0.15); }
+            
             .hero { padding: 30px 15px; }
             .hero h1 { font-size: 26px; }
             .search-container { margin: -20px auto 25px auto; }
@@ -175,20 +178,33 @@
     <!-- 🌐 NAVBAR LAYER -->
     <div class="navbar">
         <div class="logo" onclick="location.reload()">UWU MART 🛒</div>
-        <div class="nav-buttons" id="nav-actions">
-            <button class="btn-nav" id="btn-show-auth">Sign In</button>
+        
+        <div class="nav-right-container">
+            <!-- Language Selector Switcher -->
+            <select class="lang-dropdown" id="lang-select" onchange="changeLanguageSystem(this.value)">
+                <option value="en">English</option>
+                <option value="si">සිංහල</option>
+                <option value="ta">தமிழ்</option>
+            </select>
+            
+            <!-- Three Lines Hamburger Menu for Clutter-free Premium look -->
+            <div class="menu-toggle" id="mobile-hamburger-btn"><i class="fa-solid fa-bars"></i></div>
+            
+            <div class="nav-buttons" id="nav-actions">
+                <button class="btn-nav" id="btn-show-auth" data-key="nav_signin">Sign In</button>
+            </div>
         </div>
     </div>
 
     <!-- 🎪 UWU PORTAL HERO BANNER -->
     <div class="hero">
-        <h1>UWU Mart Hub</h1>
+        <h1 id="main-hero-title" data-key="hero_title">UWU Mart Hub</h1>
     </div>
 
     <!-- 🔍 SYSTEM CORE SEARCH FIELD -->
     <div class="search-container">
         <div class="search-box">
-            <input type="text" id="search-input" placeholder="🔍 Search item name or keywords here...">
+            <input type="text" id="search-input" data-placeholder="search_holder" placeholder="🔍 Search item name or keywords here...">
             <button id="btn-search-trigger"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
     </div>
@@ -196,31 +212,43 @@
     <div class="container">
         <!-- 📑 MAIN SYSTEM NAVIGATION TABS -->
         <div class="view-tabs">
-            <button class="tab-btn active" id="tab-marketplace" onclick="switchMainTab('market')">🛒 Items Feed</button>
-            <button class="tab-btn" id="tab-riders" onclick="switchMainTab('riders')">🏍️ Delivery Riders</button>
+            <button class="tab-btn active" id="tab-marketplace" onclick="switchMainTab('market')" data-key="tab_items">🛒 Items Feed</button>
+            <button class="tab-btn" id="tab-riders" onclick="switchMainTab('riders')" data-key="tab_riders">🏍️ Delivery Riders</button>
         </div>
 
         <!-- 🛒 MARKETPLACE SECTION -->
         <div id="section-market-view">
             <div class="category-bar" id="category-filters">
-                <div class="category-badge active" onclick="filterCategory('All', this)">🔥 All Posts</div>
-                <div class="category-badge" onclick="filterCategory('Electronics', this)">📱 Electronics</div>
-                <div class="category-badge" onclick="filterCategory('Books', this)">📚 Books & Materials</div>
-                <div class="category-badge" onclick="filterCategory('Boarding Essentials', this)">🛏️ Boarding Items</div>
-                <div class="category-badge" onclick="filterCategory('Clothing', this)">👕 Clothing & Fashion</div>
-                <div class="category-badge" onclick="filterCategory('Food', this)">🍔 Food & Snacks</div>
-                <div class="category-badge" onclick="filterCategory('Rides', this)">🏍️ Campus Rides</div>
-                <div class="category-badge" onclick="filterCategory('Other', this)">✨ Other</div>
+                <div class="category-badge active" onclick="filterCategory('All', this)" data-key="cat_all">🔥 All Posts</div>
+                <div class="category-badge" onclick="filterCategory('Best Food Shop', this)" data-key="cat_best_food">🍳 Best Food Shop</div>
+                <div class="category-badge" onclick="filterCategory('Electronics', this)" data-key="cat_elec">📱 Electronics</div>
+                <div class="category-badge" onclick="filterCategory('Books', this)" data-key="cat_books">📚 Books & Materials</div>
+                <div class="category-badge" onclick="filterCategory('Boarding Essentials', this)" data-key="cat_boarding">🛏️ Boarding Items</div>
+                <div class="category-badge" onclick="filterCategory('Clothing', this)" data-key="cat_clothing">👕 Clothing & Fashion</div>
+                <div class="category-badge" onclick="filterCategory('Food', this)" data-key="cat_food">🍔 Food & Snacks</div>
+                <div class="category-badge" onclick="filterCategory('Rides', this)" data-key="cat_rides">🏍️ Campus Rides</div>
+                <div class="category-badge" onclick="filterCategory('Other', this)" data-key="cat_other">✨ Other</div>
             </div>
-            <h2 class="section-title" id="market-heading">Recent Marketplace Feeds (Newest First)</h2>
+            <h2 class="section-title" id="market-heading" data-key="feed_heading">Recent Marketplace Feeds (Newest First)</h2>
         </div>
 
         <div id="section-riders-view" style="display: none;">
-            <h2 class="section-title">Registered Campus Delivery Riders</h2>
+            <h2 class="section-title" data-key="riders_heading">Registered Campus Delivery Riders</h2>
         </div>
 
         <!-- 📦 MAIN UNIVERSAL CONTAINER GRID -->
         <div class="items-grid" id="main-data-container"></div>
+        
+        <!-- 📝 PERSISTENT WEBSITE REVIEW SYSTEM -->
+        <div class="reviews-section">
+            <h2 class="section-title" data-key="rev_title"><i class="fa-solid fa-comments" style="color: var(--primary);"></i> Website Reviews</h2>
+            <div class="review-form">
+                <input type="text" id="review-username" data-placeholder="rev_name_holder" placeholder="Enter Your Name">
+                <textarea id="review-comment" data-placeholder="rev_text_holder" placeholder="Share your experience or suggestions about UWU Mart..." rows="3"></textarea>
+                <button id="btn-submit-review" onclick="submitWebsiteReview()" data-key="rev_btn">Submit Review</button>
+            </div>
+            <div class="reviews-list" id="web-reviews-container"></div>
+        </div>
     </div>
 
     <!-- 🔒 ALL-IN-ONE SYSTEM AUTHENTICATION MODAL -->
@@ -307,6 +335,7 @@
             <input type="text" id="post-title" placeholder="Item Name or Post Title">
             <input type="number" id="post-price" placeholder="Price (LKR) - Put 0 if Free/Ride">
             <select id="post-category">
+                <option value="Best Food Shop">Best Food Shop</option>
                 <option value="Electronics">Electronics</option>
                 <option value="Books">Books & Materials</option>
                 <option value="Boarding Essentials">Boarding Essentials</option>
@@ -368,6 +397,83 @@
         let profilePhotoBase64 = "";
         let currentSelectedCategory = "All";
         let activeMainTab = "market"; 
+        let currentLanguage = "en";
+
+        // 🔤 TRANSLATION DICTIONARY
+        const systemTranslations = {
+            en: {
+                nav_signin: "Sign In",
+                nav_post: "Post",
+                nav_admin: "Admin",
+                hero_title: "UWU Mart Hub",
+                search_holder: "🔍 Search item name or keywords here...",
+                tab_items: "🛒 Items Feed",
+                tab_riders: "🏍️ Delivery Riders",
+                cat_all: "🔥 All Posts",
+                cat_best_food: "🍳 Best Food Shop",
+                cat_elec: "📱 Electronics",
+                cat_books: "📚 Books & Materials",
+                cat_boarding: "🛏️ Boarding Items",
+                cat_clothing: "👕 Clothing & Fashion",
+                cat_food: "🍔 Food & Snacks",
+                cat_rides: "🏍️ Campus Rides",
+                cat_other: "✨ Other",
+                feed_heading: "Recent Marketplace Feeds (Newest First)",
+                riders_heading: "Registered Campus Delivery Riders",
+                rev_title: "Website Reviews",
+                rev_name_holder: "Enter Your Name",
+                rev_text_holder: "Share your experience or suggestions about UWU Mart...",
+                rev_btn: "Submit Review"
+            },
+            si: {
+                nav_signin: "ඇතුල් වන්න",
+                nav_post: "පළ කරන්න",
+                nav_admin: "පාලක",
+                hero_title: "UWU මාර්ට් හබ්",
+                search_holder: "🔍 භාණ්ඩයේ නම හෝ මූල පද මෙතනින් සොයන්න...",
+                tab_items: "🛒 භාණ්ඩ පෝෂකය",
+                tab_riders: "🏍️ බෙදාහැරීම් රයිඩර්ස්",
+                cat_all: "🔥 සියලුම පළ කිරීම්",
+                cat_best_food: "🍳 හොඳම කෑම කඩ",
+                cat_elec: "📱 ඉලෙක්ට්‍රොනික උපකරණ",
+                cat_books: "📚 පොත් සහ ද්‍රව්‍ය",
+                cat_boarding: "🛏️ බෝඩිම් උපකරණ",
+                cat_clothing: "👕 ඇඟලුම් සහ විලාසිතා",
+                cat_food: "🍔 කෑම සහ කෙටි කෑම",
+                cat_rides: "🏍️ කැම්පස් රයිඩ්ස්",
+                cat_other: "✨ වෙනත්",
+                feed_heading: "මෑතකාලීන වෙළඳපොළ පෝෂක (අලුත්ම ඒවා මුලින්ම)",
+                riders_heading: "ලියාපදිංචි කැම්පස් බෙදාහැරීමේ රයිඩර්ස්",
+                rev_title: "වෙබ් අඩවිය පිළිබඳ සමාලෝචන (Reviews)",
+                rev_name_holder: "ඔබේ නම ඇතුළත් කරන්න",
+                rev_text_holder: "UWU Mart පිළිබඳ ඔබේ අත්දැකීම් හෝ යෝජනා බෙදාගන්න...",
+                rev_btn: "සමාලෝචනය ඉදිරිපත් කරන්න"
+            },
+            ta: {
+                nav_signin: "உள்நுழைக",
+                nav_post: "பதிவிடுக",
+                nav_admin: "நிர்வாகி",
+                hero_title: "UWU மார்ட் ஹப்",
+                search_holder: "🔍 பொருளின் பெயர் அல்லது முக்கிய வார்த்தைகளைத் தேடுங்கள்...",
+                tab_items: "🛒 பொருட்கள் ஊட்டம்",
+                tab_riders: "🏍️ விநியோக ரைடர்ஸ்",
+                cat_all: "🔥 அனைத்து பதிவுகள்",
+                cat_best_food: "🍳 சிறந்த உணவுக்கடை",
+                cat_elec: "📱 எலக்ட்ரானிக்ஸ்",
+                cat_books: "📚 புத்தகங்கள் & பொருட்கள்",
+                cat_boarding: "🛏️ விடுதி பொருட்கள்",
+                cat_clothing: "👕 ஆடைகள் & ஃபேஷன்",
+                cat_food: "🍔 உணவு & சிற்றுண்டி",
+                cat_rides: "🏍️ வளாக சவாரிகள்",
+                cat_other: "✨ மற்றவை",
+                feed_heading: "சமீபத்திய சந்தை ஊட்டங்கள் (புதியவை முதலில்)",
+                riders_heading: "பதிவுசெய்யப்பட்ட வளாக விநியோக ரைடர்ஸ்",
+                rev_title: "வலைத்தள மதிப்புரைகள்",
+                rev_name_holder: "உங்கள் பெயரை உள்ளிடவும்",
+                rev_text_holder: "UWU Mart பற்றிய உங்கள் அனுபவம் அல்லது பரிந்துரைகளைப் பகிர்ந்து கொள்ளுங்கள்...",
+                rev_btn: "மதிப்பாய்வைச் சமர்ப்பிக்கவும்"
+            }
+        };
 
         // DOM Elements
         const authModal = document.getElementById('auth-modal');
@@ -381,6 +487,19 @@
         const forgotFields = document.getElementById('forgot-reset-fields');
         const navActions = document.getElementById('nav-actions');
         const mainDataContainer = document.getElementById('main-data-container');
+        const hamburgerBtn = document.getElementById('mobile-hamburger-btn');
+
+        // Hamburger Responsive Controller 
+        hamburgerBtn.addEventListener('click', () => {
+            navActions.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking a nav button
+        navActions.addEventListener('click', (e) => {
+            if(e.target.tagName === 'BUTTON' || e.target.closest('.user-profile')) {
+                navActions.classList.remove('active');
+            }
+        });
 
         // Modal Action Controllers
         document.getElementById('btn-show-auth')?.addEventListener('click', () => authModal.classList.add('active'));
@@ -419,6 +538,35 @@
             if (file) reader.readAsDataURL(file);
         });
 
+        // Language Switcher Engine
+        function changeLanguageSystem(lang) {
+            currentLanguage = lang;
+            
+            // Translate Text elements
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if(systemTranslations[lang][key]) {
+                    // Check if it's a tab element with inner icon preservation
+                    if(key === 'tab_items') el.innerHTML = systemTranslations[lang][key];
+                    else if(key === 'tab_riders') el.innerHTML = systemTranslations[lang][key];
+                    else el.innerText = systemTranslations[lang][key];
+                }
+            });
+
+            // Translate Input Placeholders
+            document.querySelectorAll('[data-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-placeholder');
+                if(systemTranslations[lang][key]) {
+                    el.placeholder = systemTranslations[lang][key];
+                }
+            });
+            
+            // Fix dynamically loaded headings
+            if(currentSelectedCategory !== "All") {
+                document.getElementById('market-heading').innerText = (lang === 'si' ? `සඳහා පෝෂක ${currentSelectedCategory}` : lang === 'ta' ? `${currentSelectedCategory} க்கான ஊட்டங்கள்` : `Feeds for ${currentSelectedCategory}`) + ` (${lang==='si'?'අලුත්ම ඒවා මුලින්ම':lang==='ta'?'புதியவை முதலில்':'Newest First'})`;
+            }
+        }
+
         // ⏱️ ANTI-SPAM COUNTDOWN TIMER CONTROLLER
         function startCountdown(buttonId, durationSeconds) {
             const btn = document.getElementById(buttonId);
@@ -455,11 +603,11 @@
             if (currentUser) {
                 let adminWidget = "";
                 if (currentUser.email === 'ict24067@std.uwu.ac.lk') {
-                    adminWidget = `<button class="btn-nav btn-admin" id="btn-show-admin"><i class="fa-solid fa-crown"></i> Admin</button>`;
+                    adminWidget = `<button class="btn-nav btn-admin" id="btn-show-admin" data-key="nav_admin"><i class="fa-solid fa-crown"></i> Admin</button>`;
                 }
                 navActions.innerHTML = `
                     ${adminWidget}
-                    <button class="btn-nav btn-post" id="btn-show-post"><i class="fa-solid fa-circle-plus"></i> Post</button>
+                    <button class="btn-nav btn-post" id="btn-show-post" data-key="nav_post"><i class="fa-solid fa-circle-plus"></i> Post</button>
                     <div class="user-profile" id="btn-open-profile">
                         <img src="${currentUser.photoUrl || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="user-avatar">
                         <span>${currentUser.name.split(' ')[0]}</span>
@@ -480,6 +628,7 @@
                     profileModal.classList.add('active');
                 });
             }
+            changeLanguageSystem(currentLanguage);
         }
 
         // 👤 PROFILE SAVE UPDATES ENGINE
@@ -611,7 +760,13 @@
             currentSelectedCategory = category;
             document.querySelectorAll('.category-badge').forEach(b => b.classList.remove('active'));
             badgeElement.classList.add('active');
-            document.getElementById('market-heading').innerText = category === "All" ? "Recent Marketplace Feeds (Newest First)" : `Feeds for ${category} (Newest First)`;
+            
+            const lang = currentLanguage;
+            if (category === "All") {
+                document.getElementById('market-heading').innerText = systemTranslations[lang]['feed_heading'];
+            } else {
+                document.getElementById('market-heading').innerText = (lang === 'si' ? `සඳහා පෝෂක ${category}` : lang === 'ta' ? `${category} க்கான ஊட்டங்கள்` : `Feeds for ${category}`) + ` (${lang==='si'?'අලුත්ම ඒවා මුලින්ම':lang==='ta'?'புதியவை முதலில்':'Newest First'})`;
+            }
             loadMarketItemsGrid();
         }
 
@@ -729,9 +884,51 @@
             if(data.success) { postModal.classList.remove('active'); loadMarketItemsGrid(); }
         });
 
+        // 📝 PERSISTENT REVIEW STORAGE ENGINE
+        function renderWebsiteReviews() {
+            const reviews = JSON.parse(localStorage.getItem('uwumart_reviews')) || [
+                { name: "Kasun Perera", comment: "This site is super useful for campus students! Highly recommended.", date: "2026-07-15" },
+                { name: "Fathima Riza", comment: "Buying boarding items became really easy because of UWU Mart.", date: "2026-07-17" }
+            ];
+            const container = document.getElementById('web-reviews-container');
+            container.innerHTML = reviews.map(r => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="review-user">${r.name}</span>
+                        <span class="review-date">${r.date}</span>
+                    </div>
+                    <p class="review-comment">${r.comment}</p>
+                </div>
+            `).join('');
+        }
+
+        function submitWebsiteReview() {
+            const nameInput = document.getElementById('review-username');
+            const commentInput = document.getElementById('review-comment');
+            
+            if(!nameInput.value.trim() || !commentInput.value.trim()) {
+                return alert(currentLanguage === 'si' ? "කරුණාකර නම සහ අදහස ඇතුළත් කරන්න!" : currentLanguage === 'ta' ? "பெயர் மற்றும் கருத்தை உள்ளிடவும்!" : "Please fill both Name and Review fields!");
+            }
+
+            const reviews = JSON.parse(localStorage.getItem('uwumart_reviews')) || [];
+            const newReview = {
+                name: nameInput.value.trim(),
+                comment: commentInput.value.trim(),
+                date: new Date().toISOString().split('T')[0]
+            };
+            
+            reviews.unshift(newReview);
+            localStorage.setItem('uwumart_reviews', JSON.stringify(reviews));
+            
+            nameInput.value = "";
+            commentInput.value = "";
+            renderWebsiteReviews();
+        }
+
         // Initialize Engine
         initializeNavbarState();
         loadMarketItemsGrid();
+        renderWebsiteReviews();
     </script>
 </body>
 </html>
