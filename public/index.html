@@ -144,7 +144,7 @@
                 border: 1px solid rgba(255,255,255,0.1);
             }
             .nav-buttons.active { display: flex; }
-            .nav-buttons button, .nav-buttons .btn-nav, .nav-buttons .user-profile {
+            .nav-buttons button, .nav-buttons .btn-nav, .nav-buttons .btn-post, .nav-buttons .user-profile {
                 width: 100% !important;
                 padding: 10px 15px !important;
                 font-size: 13px !important;
@@ -391,6 +391,18 @@
 
     <!-- 🧠 FRONTEND CORE ENGINE -->
     <script>
+        // WhatsApp නම්බර් එක ජාත්‍යන්තර මට්ටමට සකස් කරන සරල Function එකක්
+        function formatWhatsAppNumber(phone) {
+            if (!phone) return "";
+            // අනවශ්‍ය හිස්තැන්, ප්ලස් ලකුණු ඉවත් කිරීම
+            let cleaned = phone.toString().replace(/[^0-9]/g, '');
+            // මුලට 0 තිබේ නම් එය ඉවත් කර 94 කේතය එකතු කිරීම
+            if (cleaned.startsWith('0')) {
+                cleaned = '94' + cleaned.substring(1);
+            }
+            return cleaned;
+        }
+
         let currentUser = JSON.parse(localStorage.getItem('user')) || null;
         let regPhotoBase64 = "";
         let itemPhotoBase64 = "";
@@ -664,7 +676,7 @@
                             <td><b>${u.name}</b></td>
                             <td><code style="background:#f1f5f9; padding:2px 5px; border-radius:4px;">${u.studentId}</code></td>
                             <td>${u.email}</td>
-                            <td><a href="https://wa.me/${u.phone}" target="_blank" style="color:#25D366; font-weight:bold; text-decoration:none;"><i class="fa-brands fa-whatsapp"></i> Chat</a></td>
+                            <td><a href="https://wa.me/${formatWhatsAppNumber(u.phone)}" target="_blank" style="color:#25D366; font-weight:bold; text-decoration:none;"><i class="fa-brands fa-whatsapp"></i> Chat</a></td>
                             <td><span style="background:${u.role==='Student'?'#e0f2fe':'#fef9c3'}; color:${u.role==='Student'?'#0369a1':'#a16207'}; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${u.role}</span></td>
                         </tr>
                     `).join('');
@@ -694,7 +706,7 @@
                             <h3 class="item-title">${item.title}</h3>
                             <div class="item-location"><i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> ${item.location}</div>
                             
-                            <a href="https://wa.me/${item.whatsapp}?text=Hello, I am interested in your post [${item.title}] on UWU Mart." target="_blank" class="btn-whatsapp" onclick="event.stopPropagation();">
+                            <a href="https://wa.me/${formatWhatsAppNumber(item.whatsapp)}?text=Hello, I am interested in your post [${item.title}] on UWU Mart." target="_blank" class="btn-whatsapp" onclick="event.stopPropagation();">
                                 <i class="fa-brands fa-whatsapp" style="font-size:18px;"></i> Contact WhatsApp
                             </a>
                             
@@ -723,7 +735,7 @@
                         <img src="${rider.photoUrl || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="rider-avatar">
                         <h3 class="rider-name">${rider.name}</h3>
                         <div class="rider-id">${rider.studentId}</div>
-                        <a href="https://wa.me/${rider.phone}?text=Hi, I found you on UWU Mart Rider list. I need assistance with a delivery/ride." target="_blank" class="btn-whatsapp" style="width:100%;">
+                        <a href="https://wa.me/${formatWhatsAppNumber(rider.phone)}?text=Hi, I found you on UWU Mart Rider list. I need assistance with a delivery/ride." target="_blank" class="btn-whatsapp" style="width:100%;">
                             <i class="fa-brands fa-whatsapp"></i> Hire Rider Now
                         </a>
                     </div>
@@ -748,7 +760,7 @@
                     <div style="font-size:14px; color:#475569; margin-bottom:8px;">📁 <b>Filtered Category:</b> ${item.category}</div>
                     <div style="font-size:14px; color:#475569; margin-bottom:25px;">👤 <b>Listed By User:</b> ${item.sellerName} (${item.sellerEmail})</div>
                     
-                    <a href="https://wa.me/${item.whatsapp}?text=Hello ${item.sellerName}, I viewed your post detail sheet on UWU Mart for [${item.title}]. Let's discuss." target="_blank" class="btn-whatsapp" style="font-size:16px; padding:15px;">
+                    <a href="https://wa.me/${formatWhatsAppNumber(item.whatsapp)}?text=Hello ${item.sellerName}, I viewed your post detail sheet on UWU Mart for [${item.title}]. Let's discuss." target="_blank" class="btn-whatsapp" style="font-size:16px; padding:15px;">
                         <i class="fa-brands fa-whatsapp" style="font-size:22px;"></i> Initialize Instant WhatsApp Chat
                     </a>
                 `;
