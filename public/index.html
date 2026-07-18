@@ -3,467 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UWU Mart - Premium Tri-Lingual Hub</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>UWU MART</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; margin: 0; }
+        .box { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 320px; margin-bottom: 20px; }
+        input, select, button { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #006643; color: white; border: none; font-weight: bold; cursor: pointer; }
+        button:hover { background: #004d32; }
+        .link { text-align: right; display: block; font-size: 13px; color: #006643; text-decoration: none; margin-top: 5px; }
+        .title { color: #006643; text-align: center; margin-bottom: 15px; margin-top: 0; }
+    </style>
 </head>
-<body class="bg-slate-50 font-sans antialiased text-slate-800">
+<body>
 
-    <!-- NAVIGATION HEADER -->
-    <nav class="bg-emerald-800 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            
-            <div onclick="filterByCategory('')" class="flex items-center gap-3 cursor-pointer">
-                <div class="bg-white p-2.5 rounded-xl shadow flex items-center justify-center">
-                    <i class="fa-solid fa-cart-shopping text-emerald-800 text-xl"></i>
-                </div>
-                <div>
-                    <span class="text-xl font-black tracking-tighter block text-white">UWU <span class="text-emerald-300">MART</span></span>
-                    <span class="text-[9px] uppercase tracking-widest block text-emerald-200 font-bold font-mono">Verified Node</span>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-4">
-                
-                <!-- DYNAMIC LANGUAGE INTERFACE DROP-DOWN -->
-                <div class="flex items-center bg-emerald-900 rounded-xl px-2 py-1">
-                    <i class="fa-solid fa-language text-emerald-300 text-xs mr-1"></i>
-                    <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-transparent text-white text-xs font-bold border-0 outline-none cursor-pointer">
-                        <option value="en" class="bg-emerald-900">English</option>
-                        <option value="si" class="bg-emerald-900">සිංහල</option>
-                        <option value="ta" class="bg-emerald-900">தமிழ்</option>
-                    </select>
-                </div>
-
-                <button onclick="showSection('browse')" data-i18n="nav_market" class="hover:text-emerald-300 font-bold text-sm">Market</button>
-                <button onclick="showSection('help')" data-i18n="nav_help" class="hover:text-emerald-300 font-bold text-sm">Help</button>
-                <button id="btn-post-nav" onclick="showSection('post')" data-i18n="nav_post" class="hidden bg-emerald-500 hover:bg-emerald-600 px-3 py-1.5 rounded-xl text-sm font-bold shadow transition">+ Post Ad</button>
-                <button id="btn-admin-nav" onclick="loadAdminDashboard()" data-i18n="nav_admin" class="hidden bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-xl text-sm font-bold shadow transition"><i class="fa-solid fa-lock-open"></i> Control Panel</button>
-                
-                <div class="border-l border-emerald-700 pl-3 flex items-center gap-3">
-                    <div id="auth-logged-out">
-                        <button onclick="openAuthModal()" data-i18n="nav_login" class="bg-white text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-black shadow hover:bg-slate-100 transition">Sign In</button>
-                    </div>
-                    <div id="auth-logged-in" class="hidden flex items-center gap-2">
-                        <img id="user-avatar" src="" class="w-8 h-8 rounded-full border-2 border-emerald-400 object-cover bg-white">
-                        <span id="user-name-span" class="text-xs font-bold text-emerald-100 hidden md:inline-block"></span>
-                        <button onclick="logout()" data-i18n="nav_logout" class="text-[10px] bg-emerald-900 px-2 py-1 rounded text-emerald-300 hover:text-white">Exit</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- CONTAINER GRID -->
-    <main class="max-w-7xl mx-auto p-4 md:p-6">
-
-        <!-- BROWSE PRODUCT FEED -->
-        <section id="sec-browse" class="space-y-8">
-            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
-                <h3 data-i18n="filter_title" class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4">Browse Categories</h3>
-                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
-                    <div onclick="filterByCategory('Electronics')" class="bg-slate-50 p-3 rounded-2xl text-center cursor-pointer border hover:border-emerald-600 transition"><i class="fa-solid fa-laptop text-blue-500 text-lg block mb-1"></i><span data-i18n="cat_elec" class="text-xs font-bold text-slate-600">Electronics</span></div>
-                    <div onclick="filterByCategory('Books')" class="bg-slate-50 p-3 rounded-2xl text-center cursor-pointer border hover:border-emerald-600 transition"><i class="fa-solid fa-book text-amber-500 text-lg block mb-1"></i><span data-i18n="cat_books" class="text-xs font-bold text-slate-600">Books</span></div>
-                    <div onclick="filterByCategory('Furniture')" class="bg-slate-50 p-3 rounded-2xl text-center cursor-pointer border hover:border-emerald-600 transition"><i class="fa-solid fa-couch text-purple-500 text-lg block mb-1"></i><span data-i18n="cat_furn" class="text-xs font-bold text-slate-600">Furniture</span></div>
-                    <div onclick="filterByCategory('Clothes')" class="bg-slate-50 p-3 rounded-2xl text-center cursor-pointer border hover:border-emerald-600 transition"><i class="fa-solid fa-shirt text-pink-500 text-lg block mb-1"></i><span data-i18n="cat_cloth" class="text-xs font-bold text-slate-600">Fashion</span></div>
-                    <div onclick="filterByCategory('Food')" class="bg-slate-50 p-3 rounded-2xl text-center cursor-pointer border hover:border-emerald-600 transition"><i class="fa-solid fa-cookie-bite text-red-500 text-lg block mb-1"></i><span data-i18n="cat_food" class="text-xs font-bold text-slate-600">Food/Snacks</span></div>
-                    <div onclick="filterByCategory('Delivery')" class="bg-emerald-50 p-3 rounded-2xl text-center cursor-pointer border border-emerald-200 hover:border-emerald-600 transition"><i class="fa-solid fa-motorcycle text-emerald-600 text-lg block mb-1"></i><span data-i18n="cat_deliv" class="text-xs font-extrabold text-emerald-800">Delivery Riders</span></div>
-                    <div onclick="filterByCategory('Other')" class="bg-slate-50 p-3 rounded-2xl text-center cursor-pointer border hover:border-emerald-600 transition"><i class="fa-solid fa-asterisk text-slate-500 text-lg block mb-1"></i><span data-i18n="cat_other" class="text-xs font-bold text-slate-600">Other</span></div>
-                </div>
-            </div>
-
-            <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400"></i>
-                    <input type="text" id="search-input" oninput="loadItems()" placeholder="Search active ads... (Live Newest First)" class="w-full pl-10 border border-slate-200 p-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
-                </div>
-                <input type="hidden" id="category-filter" value="">
-            </div>
-
-            <div>
-                <h3 class="text-sm font-black text-slate-400 uppercase tracking-wider mb-4" id="grid-title" data-i18n="recent_title">Recent Platform Additions</h3>
-                <div id="items-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"></div>
-            </div>
-        </section>
-
-        <!-- HELP DOCUMENTATION HUB -->
-        <section id="sec-help" class="hidden max-w-3xl mx-auto space-y-6">
-            <div class="bg-white p-6 rounded-3xl shadow border space-y-4">
-                <h2 data-i18n="help_title" class="text-xl font-black text-emerald-800"><i class="fa-solid fa-life-ring"></i> Help Documentation</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs leading-relaxed text-slate-600">
-                    <div class="bg-slate-50 p-4 rounded-2xl border">
-                        <p data-i18n="help_reg_title" class="font-bold text-slate-800 mb-1">1. Registration Protocol</p>
-                        <span data-i18n="help_reg_body">Provide a valid @std.uwu.ac.lk email, pass the OTP verification challenge, submit your student matrices and image avatar link to instantiate your profile node.</span>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl border">
-                        <p data-i18n="help_deliv_title" class="font-bold text-slate-800 mb-1">2. Delivery Dispatchers</p>
-                        <span data-i18n="help_deliv_body">Riders can register profiles specifying operational territories and flat pricing rates to interface instantly with client orders.</span>
-                    </div>
-                </div>
-
-                <div class="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl text-center space-y-3">
-                    <h4 data-i18n="help_support_title" class="font-bold text-emerald-900 text-sm">Technical Support Hotline</h4>
-                    <p data-i18n="help_support_body" class="text-xs text-emerald-700">Any structural platform discrepancies or anomalies can be forwarded straight to the Main Admin core via WhatsApp secure infrastructure.</p>
-                    <a href="https://wa.me/94703386462?text=UWU%20Mart%20Support%20Matrix%20Request" target="_blank" class="inline-flex items-center gap-2 bg-[#25D366] text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-md">
-                        <i class="fa-brands fa-whatsapp text-base"></i> <span data-i18n="help_support_btn">Chat with Admin Support</span>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- SUBMIT NEW AD FRAME -->
-        <section id="sec-post" class="hidden max-w-xl mx-auto bg-white p-6 rounded-3xl shadow border space-y-4">
-            <h2 data-i18n="post_title" class="text-base font-bold text-slate-800">Create Marketplace Listing</h2>
-            <div class="space-y-3 text-xs">
-                <div><label data-i18n="label_title" class="font-bold text-slate-500">Asset Title</label><input type="text" id="post-title" class="w-full border p-2 rounded-xl mt-1"></div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div><label data-i18n="label_price" class="font-bold text-slate-500">Cost Value (LKR)</label><input type="number" id="post-price" class="w-full border p-2 rounded-xl mt-1"></div>
-                    <div><label data-i18n="label_cat" class="font-bold text-slate-500">Classification Category</label>
-                        <select id="post-category" class="w-full border p-2 rounded-xl mt-1 font-semibold">
-                            <option value="Electronics">Electronics</option>
-                            <option value="Books">Books & Materials</option>
-                            <option value="Furniture">Furniture</option>
-                            <option value="Clothes">Fashion & Clothes</option>
-                            <option value="Food">Food & Snacks</option>
-                            <option value="Delivery">Delivery Riders</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                </div>
-                <div><label data-i18n="label_loc" class="font-bold text-slate-500">Target Location</label><input type="text" id="post-location" class="w-full border p-2 rounded-xl mt-1"></div>
-                <div><label data-i18n="label_wa" class="font-bold text-slate-500">WhatsApp Endpoint Contact</label><input type="text" id="post-whatsapp" placeholder="94703386462" class="w-full border p-2 rounded-xl mt-1"></div>
-                <div><label data-i18n="label_img" class="font-bold text-slate-500">Product Display Image Link</label><input type="text" id="post-image" placeholder="https://..." class="w-full border p-2 rounded-xl mt-1"></div>
-                <div><label data-i18n="label_desc" class="font-bold text-slate-500">Detailed Description Arguments</label><textarea id="post-desc" rows="3" class="w-full border p-2 rounded-xl mt-1"></textarea></div>
-                <button onclick="submitAd()" data-i18n="btn_publish" class="w-full bg-emerald-800 text-white py-2.5 rounded-xl font-bold text-xs shadow mt-2">Publish Advertisement</button>
-            </div>
-        </section>
-
-        <!-- GOD-MODE CONTROL PANEL -->
-        <section id="sec-admin" class="hidden bg-white p-6 rounded-3xl shadow border space-y-6">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h2 data-i18n="admin_title" class="text-lg font-black text-rose-600">Super Admin Command Console</h2>
-                <button onclick="loadAdminDashboard()" data-i18n="admin_sync" class="text-xs bg-slate-100 p-2 rounded-xl font-bold">Sync Data</button>
-            </div>
-            <div class="grid grid-cols-2 gap-4 text-center text-xs">
-                <div class="bg-slate-50 p-4 rounded-2xl border"><p data-i18n="admin_total_users" class="font-bold text-slate-400 uppercase">Global Users Base</p><span id="admin-users-count" class="text-2xl font-black text-emerald-700">0</span></div>
-                <div class="bg-slate-50 p-4 rounded-2xl border"><p data-i18n="admin_total_items" class="font-bold text-slate-400 uppercase">Active listings</p><span id="admin-items-count" class="text-2xl font-black text-rose-700">0</span></div>
-            </div>
-            <div>
-                <h3 data-i18n="admin_roster_title" class="font-bold text-xs text-slate-400 uppercase tracking-wider mb-2">Registered System Roster Directory</h3>
-                <ul id="admin-users-list" class="border rounded-2xl bg-slate-50 p-2 divide-y max-h-60 overflow-y-auto font-mono text-[11px]"></ul>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- AUTHENTICATION LAYOVER MODAL -->
-    <div id="auth-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 flex items-center justify-center hidden p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 relative">
-            <button onclick="closeAuthModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            <div class="flex gap-4 border-b pb-2 font-bold text-xs text-slate-400">
-                <button id="tab-login" onclick="switchAuthTab('login')" data-i18n="modal_login_tab" class="text-emerald-700 border-b-2 border-emerald-700 pb-1">Login</button>
-                <button id="tab-register" onclick="switchAuthTab('register')" data-i18n="modal_reg_tab" class="pb-1">Create Account Node</button>
-            </div>
-
-            <!-- LOGIN -->
-            <div id="form-login" class="space-y-3 text-xs">
-                <div><label data-i18n="modal_login_email" class="font-bold text-slate-500">Campus Identity Email</label><input type="email" id="login-email" placeholder="ictXXX@std.uwu.ac.lk" class="w-full border p-2 rounded-xl mt-1"></div>
-                <div><label data-i18n="modal_login_pass" class="font-bold text-slate-500">Password</label><input type="password" id="login-pass" class="w-full border p-2 rounded-xl mt-1"></div>
-                <button onclick="login()" data-i18n="login_btn" class="w-full bg-slate-950 text-white py-2.5 rounded-xl font-bold shadow">Authorize Session</button>
-            </div>
-
-            <!-- REGISTRATION -->
-            <div id="form-register" class="hidden space-y-3 text-xs">
-                <div>
-                    <label data-i18n="modal_reg_email" class="font-bold text-slate-500">Campus Identity Email</label>
-                    <div class="flex gap-2 mt-1">
-                        <input type="email" id="reg-email" placeholder="yourid@std.uwu.ac.lk" class="flex-1 border p-2 rounded-xl">
-                        <button onclick="sendOTP()" data-i18n="reg_email_btn" class="bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold">Send OTP</button>
-                    </div>
-                </div>
-                <div id="reg-otp-block" class="hidden space-y-3 pt-3 border-t">
-                    <div><label data-i18n="reg_otp_label" class="font-bold text-slate-500">Verification OTP Code</label><input type="text" id="reg-otp" placeholder="XXXXXX" class="w-full border p-2 rounded-xl text-center font-bold tracking-widest text-sm"></div>
-                    <div><label data-i18n="reg_name_label" class="font-bold text-slate-500">Full Structural Name</label><input type="text" id="reg-name" class="w-full border p-2 rounded-xl"></div>
-                    <div><label data-i18n="reg_id_label" class="font-bold text-slate-500">Student ID Number</label><input type="text" id="reg-id" placeholder="UWU/ICT/24/067" class="w-full border p-2 rounded-xl"></div>
-                    <div><label data-i18n="reg_wa_label" class="font-bold text-slate-500">WhatsApp Contact Number</label><input type="text" id="reg-phone" placeholder="94771234567" class="w-full border p-2 rounded-xl"></div>
-                    <div><label data-i18n="reg_photo_label" class="font-bold text-slate-500">Avatar Image URL (Optional)</label><input type="text" id="reg-photo" placeholder="https://..." class="w-full border p-2 rounded-xl"></div>
-                    <div><label data-i18n="reg_role_label" class="font-bold text-slate-500">Operational System Role</label>
-                        <select id="reg-role" class="w-full border p-2 rounded-xl font-bold">
-                            <option value="Student">Student (Buyer/Seller)</option>
-                            <option value="Delivery">Campus Delivery Rider</option>
-                        </select>
-                    </div>
-                    <div><label data-i18n="reg_pass_label" class="font-bold text-slate-500">Create Secure Password</label><input type="password" id="reg-password" class="w-full border p-2 rounded-xl"></div>
-                    <button onclick="register()" data-i18n="reg_submit_btn" class="w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold shadow">Verify Token & Build Profile</button>
-                </div>
-            </div>
-        </div>
+    <!-- LOGIN BOX -->
+    <div class="box" id="login-section">
+        <h2 class="title">Login to UWU Mart</h2>
+        <input type="email" id="login-email" placeholder="Campus Email (@std.uwu.ac.lk)">
+        <input type="password" id="login-password" placeholder="Password">
+        <button id="btn-login">Log In</button>
+        <a href="#" class="link" id="link-goto-register">Don't have an account? Register</a>
+        <a href="#" class="link" id="link-forgot-password">Forgot Password?</a>
     </div>
 
-    <!-- TRANSLATION ENGINE & LOGIC MATRIX -->
-    <script>
-        const translations = {
-            en: {
-                nav_market: "Market", nav_help: "Help", nav_post: "+ Post Ad", nav_admin: "Control Panel", nav_login: "Sign In", nav_logout: "Exit",
-                filter_title: "Browse Categories", cat_elec: "Electronics", cat_books: "Books", cat_furn: "Furniture", cat_cloth: "Fashion", cat_food: "Food/Snacks", cat_deliv: "Delivery Riders", cat_other: "Other",
-                search_placeholder: "Search active ads... (Live Newest First)", recent_title: "Recent Platform Additions",
-                help_title: "Help Documentation", help_reg_title: "1. Registration Protocol", help_reg_body: "Provide a valid @std.uwu.ac.lk email, pass the OTP verification challenge, submit your student matrices and image avatar link to instantiate your profile node.",
-                help_deliv_title: "2. Delivery Dispatchers", help_deliv_body: "Riders can register profiles specifying operational territories and flat pricing rates to interface instantly with client orders.",
-                help_support_title: "Technical Support Hotline", help_support_body: "Any structural platform discrepancies or anomalies can be forwarded straight to the Main Admin core via WhatsApp secure infrastructure.", help_support_btn: "Chat with Admin Support",
-                post_title: "Create Marketplace Listing", label_title: "Asset Title", label_price: "Cost Value (LKR)", label_cat: "Classification Category", label_loc: "Target Location", label_wa: "WhatsApp Endpoint Contact", label_img: "Product Display Image Link", label_desc: "Detailed Description Arguments", btn_publish: "Publish Advertisement",
-                admin_title: "Super Admin Command Console", admin_sync: "Sync Data", admin_total_users: "Global Users Base", admin_total_items: "Active Listings", admin_roster_title: "Registered System Roster Directory",
-                modal_login_tab: "Login", modal_reg_tab: "Create Account Node", modal_login_email: "Campus Identity Email", modal_login_pass: "Password", login_btn: "Authorize Session",
-                modal_reg_email: "Campus Identity Email", reg_email_btn: "Send OTP", reg_otp_label: "Verification OTP Code", reg_name_label: "Full Structural Name", reg_id_label: "Student ID Number", reg_wa_label: "WhatsApp Contact Number", reg_photo_label: "Avatar Image URL (Optional)", reg_role_label: "Operational System Role", reg_pass_label: "Create Secure Password", reg_submit_btn: "Verify Token & Build Profile"
-            },
-            si: {
-                nav_market: "වෙළඳපොළ", nav_help: "උදව් පිටුව", nav_post: "+ දැන්වීමක්", nav_admin: "පාලක පැනලය", nav_login: "පිවිසෙන්න", nav_logout: "ඉවත් වන්න",
-                filter_title: "වර්ගීකරණයන් අනුව සොයන්න", cat_elec: "ඉලෙක්ට්‍රොනික", cat_books: "පොත්පත්", cat_furn: "ගෘහ භාණ්ඩ", cat_cloth: "ඇඳුම් පැළඳුම්", cat_food: "කෑම/තේපැන්", cat_deliv: "ඩෙලිවරි රයිඩර්ස්", cat_other: "වෙනත්",
-                search_placeholder: "දැන්වීම් සොයන්න... (අලුත්ම ඒවා මුලින්ම)", recent_title: "පද්ධතියට එක්වූ අලුත්ම දැන්වීම්",
-                help_title: "උදව් සහ පද්ධති ලේඛනගත කිරීම", help_reg_title: "1. ගිණුමක් සෑදීමේ පියවර", help_reg_body: "වලංගු @std.uwu.ac.lk විද්‍යුත් තැපෑලක් ලබා දී, OTP කේතය තහවුරු කර, ඔබගේ ශිෂ්‍ය තොරතුරු සහ පැතිකඩ පින්තූර සබැඳිය ඇතුළත් කර ගිණුම සාදාගන්න.",
-                help_deliv_title: "2. ඩෙලිවරි සේවා සපයන්නන්", help_deliv_body: "රයිඩර්ස් හට තමන් සේවා සපයන ප්‍රදේශ සහ ස්ථාවර ගාස්තු ඇතුළත් කර පැතිකඩක් සකසා සිසුන් සමඟ කෙලින්ම සම්බන්ධ විය හැක.",
-                help_support_title: "තාක්ෂණික සහාය කවුළුව", help_support_body: "පද්ධතියේ ඇතිවන ඕනෑම තාක්ෂණික දෝෂයක් හෝ ගැටලුවක් වහාම WhatsApp යටිතල පහසුකම් ඔස්සේ ප්‍රධාන පරිපාලක වෙත යොමු කළ හැක.", help_support_btn: "ප්‍රධාන සහායක සම්බන්ධ කරගන්න",
-                post_title: "වෙළඳපොළ දැන්වීමක් නිර්මාණය කරන්න", label_title: "දැන්වීමේ මාතෘකාව", label_price: "වටිනාකම (LKR)", label_cat: "කාණ්ඩය තෝරන්න", label_loc: "Operational ස්ථානය", label_wa: "WhatsApp සම්බන්ධතා අංකය", label_img: "භාණ්ඩයේ පින්තූර සබැඳිය (URL)", label_desc: "විස්තරාත්මක විග්‍රහය", btn_publish: "දැන්වීම සක්‍රීය කරන්න",
-                admin_title: "ප්‍රධාන පරිපාලක විධාන පැනලය", admin_sync: "දත්ත සමමුහුර්ත කරන්න", admin_total_users: "මුළු ලියාපදිංචි පරිශීලකයින්", admin_total_items: "සක්‍රීය දැන්වීම් ප්‍රමාණය", admin_roster_title: "පද්ධති පරිශීලක නාමාවලිය (Admin Eyes Only)",
-                modal_login_tab: "ඇතුල් වන්න", modal_reg_tab: "නව ගිණුමක් සාදන්න", modal_login_email: "කැම්පස් ඊමේල් ලිපිනය", modal_login_pass: "මුරපදය", login_btn: "සෙෂන් එක තහවුරු කරන්න",
-                modal_reg_email: "කැම්පස් ඊමේල් ලිපිනය", reg_email_btn: "කේතය යවන්න", reg_otp_label: "ලැබුණු OTP රහස් කේතය", reg_name_label: "සම්පූර්ණ නම", reg_id_label: "ශිෂ්‍ය හැඳුනුම්පත් අංකය", reg_wa_label: "WhatsApp දුරකථන අංකය", reg_photo_label: "පැතිකඩ පින්තූර URL (තිබේ නම්)", reg_role_label: "පද්ධතිමය භූමිකාව", reg_pass_label: "නව ආරක්ෂිත මුරපදයක්", reg_submit_btn: "OTP තහවුරු කර ගිණුම අරඹන්න"
-            },
-            ta: {
-                nav_market: "சந்தை", nav_help: "உதவி", nav_post: "+ விளம்பரம்", nav_admin: "கட்டுப்பாட்டு அறை", nav_login: "உள்நுழைய", nav_logout: "வெளியேறு",
-                filter_title: "வகைகள் வாரியாக உலாவுக", cat_elec: "மின்னணுவியல்", cat_books: "புத்தகங்கள்", cat_furn: "தளபாடங்கள்", cat_cloth: "ஆடை", cat_food: "உணவு/சிற்றுண்டி", cat_deliv: "டெலிவரி ரைடர்ஸ்", cat_other: "மற்றவை",
-                search_placeholder: "விளம்பரங்களைத் தேடுங்கள்... (புதியது முதலில்)", recent_title: "சமீபத்திய சேர்க்கைகள்",
-                help_title: "உதவி ஆவணங்கள்", help_reg_title: "1. பதிவு நெறிமுறை", help_reg_body: "செல்லுபடியாகும் @std.uwu.ac.lk மின்னஞ்சலை வழங்கி, OTP சரிபார்ப்பை முடித்து, உங்கள் மாணவர் விபரங்கள் மற்றும் சுயவிவரப் பட இணைப்புச் சமர்ப்பிக்கவும்.",
-                help_deliv_title: "2. டெலிவரி ரைடர்ஸ்", help_deliv_body: "ரைடர்கள் தங்கள் செயல்பாட்டுப் பகுதிகள் மற்றும் நிலையான விலைகளைக் குறிப்பிட்டு சுயவிவரங்களை உருவாக்கி மாணவர்களுடன் நேரடியாக இணையலாம்.",
-                help_support_title: "தொழில்நுட்ப ஆதரவு", help_support_body: "ஏதேனும் தொழில்நுட்ப சிக்கல்கள் இருந்தால் வாட்ஸ்அப் மூலம் முதன்மை நிர்வாகிக்கு நேரடியாக அனுப்பலாம்.", help_support_btn: "நிர்வாகி ஆதரவுடன் அரட்டையடிக்கவும்",
-                post_title: "சந்தை விளம்பரத்தை உருவாக்கவும்", label_title: "விளம்பரத் தலைப்பு", label_price: "மதிப்பு (LKR)", label_cat: "வகைப்பாடு வகை", label_loc: "இலக்கு இடம்", label_wa: "வாட்ஸ்அப் தொடர்பு எண்", label_img: "தயாரிப்பு காட்சி பட இணைப்பு", label_desc: "விரிவான விளக்கம்", btn_publish: "விளம்பரத்தை வெளியிடவும்",
-                admin_title: "முதன்மை நிர்வாகி கட்டுப்பாட்டு கன்சோல்", admin_sync: "தரவை ஒத்திசைக்கவும்", admin_total_users: "உலகளாவிய பயனர்கள்", admin_total_items: "செயலில் உள்ள விளம்பரங்கள்", admin_roster_title: "பதிவுசெய்யப்பட்ட கணினிகளின் அடைவு",
-                modal_login_tab: "உள்நுழைய", modal_reg_tab: "கணக்கை உருவாக்குங்கள்", modal_login_email: "பல்கலைக்கழக மின்னஞ்சல்", modal_login_pass: "கடவுச்சொல்", login_btn: "அமர்வை அங்கீகரிக்கவும்",
-                modal_reg_email: "பல்கலைக்கழக மின்னஞ்சல்", reg_email_btn: "OTP அனுப்பவும்", reg_otp_label: "சரிபார்ப்பு OTP குறியீடு", reg_name_label: "முழு பெயர்", reg_id_label: "மாணவர் அடையாள எண்", reg_wa_label: "வாட்ஸ்அப் எண்", reg_photo_label: "சுயவிவரப் பட இணைப்பு (விருப்பப்படி)", reg_role_label: "செயல்பாட்டு அமைப்பு பங்கு", reg_pass_label: "கடவுச்சொல்லை உருவாக்குங்கள்", reg_submit_btn: "சுயவிவரத்தை சரிபார்த்து உருவாக்குங்கள்"
-            }
-        };
-
-        let currentUser = JSON.parse(localStorage.getItem('user')) || null;
-
-        function changeLanguage(lang) {
-            localStorage.setItem('uwu_lang', lang);
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if (translations[lang] && translations[lang][key]) {
-                    element.textContent = translations[lang][key];
-                }
-            });
-            const searchInput = document.getElementById('search-input');
-            if(searchInput) searchInput.placeholder = translations[lang]['search_placeholder'];
-        }
-
-        function showSection(sec) {
-            const sections = ['sec-browse', 'sec-post', 'sec-admin', 'sec-help'];
-            sections.forEach(s => document.getElementById(s).classList.add('hidden'));
-            document.getElementById(`sec-${sec}`).classList.remove('hidden');
-        }
-
-        function filterByCategory(cat) {
-            document.getElementById('category-filter').value = cat;
-            const currentLang = localStorage.getItem('uwu_lang') || 'en';
-            document.getElementById('grid-title').innerText = cat ? `${cat} Node Vector` : translations[currentLang]['recent_title'];
-            loadItems();
-            showSection('browse');
-        }
-
-        function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
-        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+    <!-- REGISTER BOX -->
+    <div class="box" id="register-section" style="display: none;">
+        <h2 class="title">Create Account</h2>
+        <input type="email" id="reg-email" placeholder="Campus Email">
+        <button id="btn-reg-otp">Get Verification OTP</button>
         
-        function switchAuthTab(type) {
-            if(type === 'login') {
-                document.getElementById('form-login').classList.remove('hidden');
-                document.getElementById('form-register').classList.add('hidden');
-                document.getElementById('tab-login').className = "text-emerald-700 border-b-2 border-emerald-700 pb-1 font-bold";
-                document.getElementById('tab-register').className = "pb-1";
-            } else {
-                document.getElementById('form-login').classList.add('hidden');
-                document.getElementById('form-register').classList.remove('hidden');
-                document.getElementById('tab-login').className = "pb-1";
-                document.getElementById('tab-register').className = "text-emerald-700 border-b-2 border-emerald-700 pb-1 font-bold";
-            }
-        }
+        <input type="text" id="reg-otp" placeholder="Enter 6-Digit OTP">
+        <input type="text" id="reg-name" placeholder="Full Name">
+        <input type="text" id="reg-id" placeholder="Student ID (e.g., ICT24067)">
+        <input type="text" id="reg-phone" placeholder="WhatsApp Number">
+        
+        <label style="font-size: 12px; color: #555; display: block; margin-top: 5px;">Choose Profile Photo from Gallery:</label>
+        <input type="file" id="reg-photo" accept="image/*">
+        
+        <select id="reg-role">
+            <option value="Student">Student</option>
+            <option value="Delivery">Delivery Rider</option>
+        </select>
+        <input type="password" id="reg-password" placeholder="Create Password">
+        <button id="btn-register">Register Now</button>
+        <a href="#" class="link" id="link-goto-login">Already have an account? Login</a>
+    </div>
 
-        function updateNavbarUI() {
-            if(currentUser) {
-                document.getElementById('auth-logged-out').classList.add('hidden');
-                document.getElementById('auth-logged-in').classList.remove('hidden');
-                document.getElementById('user-avatar').src = currentUser.photoUrl;
-                document.getElementById('user-name-span').innerText = currentUser.name;
-                document.getElementById('btn-post-nav').classList.remove('hidden');
-                
-                if(currentUser.email === 'ict24067@std.uwu.ac.lk') {
-                    document.getElementById('btn-admin-nav').classList.remove('hidden');
-                }
-            }
-        }
+    <!-- FORGOT PASSWORD BOX -->
+    <div class="box" id="forgot-section" style="display: none;">
+        <h2 class="title">Reset Password</h2>
+        <input type="email" id="forgot-email" placeholder="Enter Campus Email">
+        <button id="btn-forgot-otp">Send Reset Code</button>
+        
+        <div id="forgot-reset-fields" style="display: none;">
+            <input type="text" id="forgot-otp" placeholder="Enter Reset OTP">
+            <input type="password" id="forgot-new-pass" placeholder="Enter New Password">
+            <button id="btn-confirm-reset">Update Password</button>
+        </div>
+        <a href="#" class="link" id="link-forgot-back">Back to Login</a>
+    </div>
 
-        async function sendOTP() {
-            const email = document.getElementById('reg-email').value;
-            const res = await fetch('/api/auth/send-otp', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            alert(data.message);
-            if(data.success) document.getElementById('reg-otp-block').classList.remove('hidden');
-        }
-
-        async function register() {
-            const email = document.getElementById('reg-email').value;
-            const otp = document.getElementById('reg-otp').value;
-            const name = document.getElementById('reg-name').value;
-            const studentId = document.getElementById('reg-id').value;
-            const phone = document.getElementById('reg-phone').value;
-            const photoUrl = document.getElementById('reg-photo').value || undefined;
-            const role = document.getElementById('reg-role').value;
-            const password = document.getElementById('reg-password').value;
-
-            const res = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email, otp, name, studentId, phone, photoUrl, role, password })
-            });
-            const data = await res.json();
-            alert(data.message);
-            if(data.success) window.location.reload();
-        }
-
-        async function login() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-pass').value;
-
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email, password })
-            });
-            const data = await res.json();
-            if(data.success) {
-                localStorage.setItem('user', JSON.stringify(data.user));
-                window.location.reload();
-            } else {
-                alert(data.message);
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('user');
-            window.location.reload();
-        }
-
-        async function submitAd() {
-            const title = document.getElementById('post-title').value;
-            const price = document.getElementById('post-price').value;
-            const category = document.getElementById('post-category').value;
-            const location = document.getElementById('post-location').value;
-            const whatsapp = document.getElementById('post-whatsapp').value;
-            const imageUrl = document.getElementById('post-image').value || 'https://images.unsplash.com/photo-1546213290-e1b7610331dd?q=80&w=600&auto=format&fit=crop';
-            const description = document.getElementById('post-desc').value;
-
-            const res = await fetch('/api/items/post', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ title, price, category, location, whatsapp, imageUrl, description, sellerEmail: currentUser.email, sellerName: currentUser.name })
-            });
-            const data = await res.json();
-            alert(data.message);
-            if(data.success) { filterByCategory(''); }
-        }
-
-        async function loadItems() {
-            const search = document.getElementById('search-input').value;
-            const category = document.getElementById('category-filter').value;
-            
-            const res = await fetch(`/api/items?search=${search}&category=${category}`);
-            const items = await res.json();
-            
-            const grid = document.getElementById('items-grid');
-            grid.innerHTML = '';
-
-            if(items.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-10 text-xs font-bold text-slate-300"><i class="fa-solid fa-box-open text-2xl block mb-2"></i>No entries found in this network segment.</div>`;
-                return;
-            }
-            
-            items.forEach(item => {
-                const waLink = `https://wa.me/${item.whatsapp}?text=UWUMart%20Asset%20Query:%20${item.title}`;
-                const hasDeleteAuthority = currentUser && (currentUser.email === 'ict24067@std.uwu.ac.lk' || currentUser.email === item.sellerEmail);
-                const isDeliveryRider = item.category === 'Delivery';
-
-                grid.innerHTML += `
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between overflow-hidden transition hover:shadow-md">
-                        <div>
-                            <div class="relative">
-                                <img src="${item.imageUrl}" class="w-full h-36 object-cover bg-slate-100">
-                                <span class="absolute top-2 left-2 text-[9px] font-black px-2 py-0.5 rounded shadow bg-white ${isDeliveryRider ? 'text-emerald-700':'text-slate-700'}">${item.category}</span>
-                            </div>
-                            <div class="p-4 space-y-1">
-                                <h4 class="font-bold text-xs text-slate-800 line-clamp-1">${item.title}</h4>
-                                <p class="text-sm font-black text-slate-900">${isDeliveryRider ? 'Rates:' : ''} LKR ${Number(item.price).toLocaleString()}</p>
-                                <p class="text-[10px] text-slate-400 font-semibold">📍 ${item.location}</p>
-                                <p class="text-[11px] text-slate-500 line-clamp-2 pt-1">${item.description || ''}</p>
-                            </div>
-                        </div>
-                        <div class="p-4 pt-0 border-t mt-2 flex flex-col gap-2">
-                            <span class="text-[9px] font-bold text-slate-400 block"><i class="fa-solid fa-user"></i> Member: ${item.sellerName || 'Member'}</span>
-                            <a href="${waLink}" target="_blank" class="w-full bg-[#25D366] text-white font-bold py-2 rounded-xl text-center text-[11px] flex items-center justify-center gap-1.5 shadow-sm">
-                                <i class="fa-brands fa-whatsapp text-sm"></i> ${isDeliveryRider ? 'Book Fleet Driver' : 'Contact via WA'}
-                            </a>
-                            ${hasDeleteAuthority ? `<button onclick="deleteAssetNode('${item._id}')" class="w-full bg-rose-50 text-rose-600 font-bold py-1 rounded-xl text-[10px] border border-rose-100 hover:bg-rose-100">Delete Listing</button>` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        async function deleteAssetNode(id) {
-            if(!confirm("මෙම දැන්වීම සදහටම පද්ධතියෙන් මකා දැමීමට අවශ්‍යද?")) return;
-            const res = await fetch(`/api/items/${id}`, {
-                method: 'DELETE',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email: currentUser.email })
-            });
-            const data = await res.json();
-            alert(data.message);
-            loadItems();
-        }
-
-        async function loadAdminDashboard() {
-            showSection('admin');
-            const res = await fetch('/api/admin/dashboard', {
-                headers: { 'admin-email': currentUser.email }
-            });
-            
-            if(res.status === 403) {
-                alert("Access Denied: මේ දත්ත බැලීමට අවසර ඇත්තේ ප්‍රධාන Admin ට පමණි!");
-                filterByCategory('');
-                return;
-            }
-
-            const data = await res.json();
-            document.getElementById('admin-users-count').innerText = data.totalUsers;
-            document.getElementById('admin-items-count').innerText = data.totalItems;
-            
-            const list = document.getElementById('admin-users-list');
-            list.innerHTML = '';
-            data.allUsers.forEach(u => {
-                list.innerHTML += `<li class="py-1.5 border-b flex justify-between items-center text-slate-700">
-                    <span>👤 <b>${u.name}</b> (${u.email}) - RegID: <b>${u.studentId}</b> - Role: <b class="text-emerald-700">${u.role}</b></span>
-                </li>`;
-            });
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('uwu_lang') || 'en';
-            document.getElementById('lang-selector').value = savedLang;
-            changeLanguage(savedLang);
-            updateNavbarUI();
-            loadItems();
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
