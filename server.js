@@ -174,6 +174,16 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) return res.status(404).json({ success: false, message: "No account found with this campus email." });
 
+        // Cooldown Check for Password Reset OTP
+        const existingOtp = await OtpModel.findOne({ email });
+        if (existingOtp) {
+            const timePassed = Date.now() - new Date(existingOtp.lastSentAt).getTime();
+            if (timePassed < 60000) {
+                const secondsLeft = Math.ceil((60000 - timePassed) / 1000);
+                return res.status(400).json({ success: false, message: `Please wait ${secondsLeft} seconds before requesting another code.` });
+            }
+        }
+
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
         let transporter = nodemailer.createTransport({
@@ -225,7 +235,8 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
 // 6. Post Ad
 app.post('/api/items/post', async (req, res) => {
-    try { await connectDB();
+    try { 
+        await connectDB();
         const { title, price, category, location, whatsapp, description, imageUrl, sellerEmail, sellerName } = req.body;
         const newItem = new Item({ title, price, category, location, whatsapp, description, imageUrl, sellerEmail, sellerName });
         await newItem.save();
@@ -235,7 +246,8 @@ app.post('/api/items/post', async (req, res) => {
 
 // 7. Get Items
 app.get('/api/items', async (req, res) => {
-    try { await connectDB();
+    try { 
+        await connectDB();
         const { search, category } = req.query;
         let query = {};
         if (category) query.category = category;
@@ -245,9 +257,10 @@ app.get('/api/items', async (req, res) => {
     } catch (e) { res.status(500).json([]); }
 });
 
-// 8. Delete Override (👑 ict24067@std.uwu.ac.lk Supreme Admin Lock)
+// 8. Delete Override (👑 Master Admin Lock)
 app.delete('/api/items/:id', async (req, res) => {
-    try { await connectDB();
+    try { 
+        await connectDB();
         const { id } = req.params;
         const { email } = req.body;
         const item = await Item.findById(id);
