@@ -3,66 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UWU MART</title>
+    <title>UWU MART | Campus Marketplace</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; margin: 0; }
-        .box { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 320px; margin-bottom: 20px; }
-        input, select, button { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { background: #006643; color: white; border: none; font-weight: bold; cursor: pointer; }
-        button:hover { background: #004d32; }
-        .link { text-align: right; display: block; font-size: 13px; color: #006643; text-decoration: none; margin-top: 5px; }
-        .title { color: #006643; text-align: center; margin-bottom: 15px; margin-top: 0; }
+        :root {
+            --primary-color: #006643;
+            --primary-hover: #004d32;
+            --bg-color: #f4f7f6;
+        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg-color); margin: 0; padding: 0; }
+        
+        /* 🌐 NAVBAR DESIGN */
+        .navbar { background: var(--primary-color); color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); sticky: top; position: sticky; top: 0; z-index: 999; }
+        .logo { font-size: 22px; font-weight: bold; letter-spacing: 1px; cursor: pointer; }
+        .nav-buttons { display: flex; align-items: center; gap: 15px; }
+        .btn-nav { background: white; color: var(--primary-color); border: none; padding: 8px 18px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-nav:hover { background: #e6e6e6; }
+        .btn-post { background: #ffc107; color: #212529; }
+        .btn-post:hover { background: #e0a800; }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-weight: bold; }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
+
+        /* 🛒 MARKETPLACE MAIN LAYOUT (Fixed Overlapping) */
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .section-title { color: #333; margin-bottom: 20px; border-left: 5px solid var(--primary-color); padding-left: 10px; }
+        
+        /* 🗂️ GRID CONTAINER FOR ITEMS */
+        .items-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+            gap: 25px; 
+            padding: 10px 0;
+        }
+        
+        /* 📦 ITEM CARD DESIGN */
+        .item-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.05); transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        .item-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
+        .item-img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
+        .item-details { padding: 15px; flex-grow: 1; }
+        .item-price { font-size: 18px; font-weight: bold; color: var(--primary-color); margin: 5px 0; }
+        .item-title { font-size: 16px; font-weight: 600; margin: 0 0 8px 0; color: #333; }
+        .item-meta { font-size: 12px; color: #777; margin-bottom: 5px; }
+        .btn-whatsapp { display: block; text-align: center; background: #25D366; color: white; text-decoration: none; padding: 8px; border-radius: 4px; font-weight: bold; margin-top: 10px; font-size: 14px; }
+        .btn-delete { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 5px; width: 100%; }
+
+        /* 🔒 POPUP MODAL OVERLAY (BACKGROUND BACKGROUND) */
+        .modal-overlay { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.6); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 10000; 
+            opacity: 0; pointer-events: none;
+            transition: 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        /* 📑 AUTH BOX inside Modal */
+        .auth-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); width: 340px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #666; font-weight: bold; }
+        
+        /* Forms styling inside Auth view */
+        input, select, button, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: var(--primary-color); color: white; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
+        button:hover { background: var(--primary-hover); }
+        .link { text-align: right; display: block; font-size: 13px; color: var(--primary-color); text-decoration: none; margin-top: 5px; }
+        .title { color: var(--primary-color); text-align: center; margin-bottom: 15px; margin-top: 0; }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN BOX -->
-    <div class="box" id="login-section">
-        <h2 class="title">Login to UWU Mart</h2>
-        <input type="email" id="login-email" placeholder="Campus Email (@std.uwu.ac.lk)">
-        <input type="password" id="login-password" placeholder="Password">
-        <button id="btn-login">Log In</button>
-        <a href="#" class="link" id="link-goto-register">Don't have an account? Register</a>
-        <a href="#" class="link" id="link-forgot-password">Forgot Password?</a>
-    </div>
-
-    <!-- REGISTER BOX -->
-    <div class="box" id="register-section" style="display: none;">
-        <h2 class="title">Create Account</h2>
-        <input type="email" id="reg-email" placeholder="Campus Email">
-        <button id="btn-reg-otp">Get Verification OTP</button>
-        
-        <input type="text" id="reg-otp" placeholder="Enter 6-Digit OTP">
-        <input type="text" id="reg-name" placeholder="Full Name">
-        <input type="text" id="reg-id" placeholder="Student ID (e.g., ICT24067)">
-        <input type="text" id="reg-phone" placeholder="WhatsApp Number">
-        
-        <label style="font-size: 12px; color: #555; display: block; margin-top: 5px;">Choose Profile Photo from Gallery:</label>
-        <input type="file" id="reg-photo" accept="image/*">
-        
-        <select id="reg-role">
-            <option value="Student">Student</option>
-            <option value="Delivery">Delivery Rider</option>
-        </select>
-        <input type="password" id="reg-password" placeholder="Create Password">
-        <button id="btn-register">Register Now</button>
-        <a href="#" class="link" id="link-goto-login">Already have an account? Login</a>
-    </div>
-
-    <!-- FORGOT PASSWORD BOX -->
-    <div class="box" id="forgot-section" style="display: none;">
-        <h2 class="title">Reset Password</h2>
-        <input type="email" id="forgot-email" placeholder="Enter Campus Email">
-        <button id="btn-forgot-otp">Send Reset Code</button>
-        
-        <div id="forgot-reset-fields" style="display: none;">
-            <input type="text" id="forgot-otp" placeholder="Enter Reset OTP">
-            <input type="password" id="forgot-new-pass" placeholder="Enter New Password">
-            <button id="btn-confirm-reset">Update Password</button>
+    <!-- 🌐 TOP NAVBAR -->
+    <div class="navbar">
+        <div class="logo" onclick="location.reload()">UWU MART</div>
+        <div class="nav-buttons" id="nav-actions">
+            <!-- Dynamic Content via JS: Shows Sign In or User Profile -->
+            <button class="btn-nav" id="btn-show-auth">Sign In</button>
         </div>
-        <a href="#" class="link" id="link-forgot-back">Back to Login</a>
     </div>
 
-    <script src="script.js"></script>
+    <!-- 🛒 MAIN CONTAINER -->
+    <div class="container">
+        <h2 class="section-title">Latest Advertisements</h2>
+        <!-- 📦 Items Layout (No more overlapping) -->
+        <div class="items-grid" id="items-container">
+            <p style="text-align: center; color: #777;">Loading items from marketplace...</p>
+        </div>
+    </div>
+
+    <!-- 🔒 AUTOMATED AUTHENTICATION POPUP MODAL -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="auth-box">
+            <span class="close-modal" id="btn-close-auth">&times;</span>
+
+            <!-- LOGIN VIEW -->
+            <div id="login-section">
+                <h2 class="title">Login to UWU Mart</h2>
+                <input type="email" id="login-email" placeholder="Campus Email (@std.uwu.ac.lk)">
+                <input type="password" id="login-password" placeholder="Password">
+                <button id="btn-login">Log In</button>
+                <a href="#" class="link" id="link-goto-register">Don't have an account? Register</a>
+                <a href="#" class="link" id="link-forgot-password">Forgot Password?</a>
+            </div>
+
+            <!-- REGISTER VIEW -->
+            <div id="register-section" style="display: none;">
+                <h2 class="title">Create Account</h2>
+                <input type="email" id="reg-email" placeholder="Campus Email">
+                <button id="btn-reg-otp" style="background: #555;">Get Verification OTP</button>
+                
+                <input type="text" id="reg-otp" placeholder="Enter 6-Digit OTP">
+                <input type="text" id="reg-name" placeholder="Full Name">
+                <input type="text" id="reg-id" placeholder="Student ID (e.g., ICT24067)">
+                <input type="text" id="reg-phone" placeholder="WhatsApp Number">
+                
+                <label style="font-size: 12px; color: #555; display: block; margin-top: 5px;">Profile Photo:</label>
+                <input type="file" id="reg-photo" accept="image/*">
+                
+                <select id="reg-role">
+                    <option value="Student">Student</option>
+                    <option value="Delivery">Delivery Rider</option>
+                </select>
+                <input type="password" id="reg-password" placeholder="Create Password">
+                <button id="btn-register">Register Now</button>
+                <a href="#" class="link" id="link-goto-login">Already have an account? Login</a>
+            </div>
+
+            <!-- FORGOT PASSWORD VIEW -->
+            <div id="forgot-section" style="display: none;">
+                <h2 class="title">Reset Password</h2>
+                <input type="email" id="forgot-email" placeholder="Enter Campus Email">
+                <button id="btn-forgot-otp" style="background: #555;">Send Reset Code</button>
+                
+                <div id="forgot-reset-fields" style="display: none;">
+                    <input type="text" id="forgot-otp" placeholder="Enter Reset OTP">
+                    <input type="password" id="forgot-new-pass" placeholder="Enter New Password">
+                    <button id="btn-confirm-reset">Update Password</button>
+                </div>
+                <a href="#" class="link" id="link-forgot-back">Back to Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📝 POST ADVERTISEMENT POPUP MODAL -->
+    <div class="modal-overlay" id="post-modal">
+        <div class="auth-box">
+            <span class="close-modal" id="btn-close-post">&times;</span>
+            <h2 class="title">Post New Ad</h2>
+            <input type="text" id="post-title" placeholder="Item Title (e.g., Mini Fridge)">
+            <input type="number" id="post-price" placeholder="Price (LKR)">
+            <select id="post-category">
+                <option value="Electronics">Electronics</option>
+                <option value="Books">Books & Study Materials</option>
+                <option value="Boarding Essentials">Boarding Essentials</option>
+                <option value="Clothing">Clothing & Fashion</option>
+                <option value="Other">Other</option>
+            </select>
+            <input type="text" id="post-location" placeholder="Location (e.g., Shamila Boarding / Badulla)">
+            <input type="text" id="post-whatsapp" placeholder="WhatsApp Contact Number">
+            <textarea id="post-desc" placeholder="Brief description of the item..." rows="3"></textarea>
+            <label style="font-size: 12px; color: #555;">Item Photo:</label>
+            <input type="file" id="post-photo" accept="image/*">
+            <button id="btn-submit-post">Publish Advertisement</button>
+        </div>
+    </div>
+
+    <!-- 🧠 FRONTEND CORE LOGIC ENGINE -->
+    <script>
+        let currentUser = JSON.parse(localStorage.getItem('user')) || null;
+        let regPhotoBase64 = "";
+        let itemPhotoBase64 = "";
+
+        // UI View Components
+        const authModal = document.getElementById('auth-modal');
+        const postModal = document.getElementById('post-modal');
+        const loginSection = document.getElementById('login-section');
+        const registerSection = document.getElementById('register-section');
+        const forgotSection = document.getElementById('forgot-section');
+        const forgotFields = document.getElementById('forgot-reset-fields');
+        const navActions = document.getElementById('nav-actions');
+        const itemsContainer = document.getElementById('items-container');
+
+        // Modal Open/Close Toggles
+        document.getElementById('btn-show-auth')?.addEventListener('click', () => authModal.classList.add('active'));
+        document.getElementById('btn-close-auth').addEventListener('click', () => authModal.classList.remove('active'));
+        document.getElementById('btn-close-post').addEventListener('click', () => postModal.classList.remove('active'));
+
+        // View Inside Auth Switchers
+        document.getElementById('link-goto-register').addEventListener('click', (e) => { e.preventDefault(); loginSection.style.display = 'none'; registerSection.style.display = 'block'; });
+        document.getElementById('link-goto-login').addEventListener('click', (e) => { e.preventDefault(); registerSection.style.display = 'none'; loginSection.style.display = 'block'; });
+        document.getElementById('link-forgot-password').addEventListener('click', (e) => { e.preventDefault(); loginSection.style.display = 'none'; forgotSection.style.display = 'block'; });
+        document.getElementById('link-forgot-back').addEventListener('click', (e) => { e.preventDefault(); forgotSection.style.display = 'none'; loginSection.style.display = 'block'; });
+
+        // Base64 File Readers
+        document.getElementById('reg-photo').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => { regPhotoBase64 = reader.result; };
+            if (file) reader.readAsDataURL(file);
+        });
+        document.getElementById('post-photo').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => { itemPhotoBase64 = reader.result; };
+            if (file) reader.readAsDataURL(file);
+        });
+
+        // 🔄 Setup Navbar UI State
+        function updateNavbarState() {
+            if (currentUser) {
+                navActions.innerHTML = `
+                    <button class="btn-nav btn-post" id="btn-show-post">+ Post Ad</button>
+                    <div class="user-profile">
+                        <img src="${currentUser.photoUrl}" class="user-avatar" alt="User">
+                        <span>${currentUser.name.split(' ')[0]}</span>
+                    </div>
+                    <button class="btn-nav" id="btn-logout" style="background:#555; color:white;">Logout</button>
+                `;
+                document.getElementById('btn-show-post').addEventListener('click', () => postModal.classList.add('active'));
+                document.getElementById('btn-logout').addEventListener('click', () => {
+                    localStorage.removeItem('user');
+                    currentUser = null;
+                    location.reload();
+                });
+            }
+        }
+
+        // 📩 Fetch and display Marketplace items
+        async function loadMarketplaceItems() {
+            try {
+                const res = await fetch('/api/items');
+                const items = await res.json();
+                if(items.length === 0) {
+                    itemsContainer.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:#888;">No ads posted yet. Be the first!</p>`;
+                    return;
+                }
+                itemsContainer.innerHTML = items.map(item => `
+                    <div class="item-card">
+                        <img src="${item.imageUrl || 'https://via.placeholder.com/300x180?text=UWU+Mart'}" class="item-img" alt="Item">
+                        <div class="item-details">
+                            <div class="item-price">LKR ${item.price.toLocaleString()}</div>
+                            <h3 class="item-title">${item.title}</h3>
+                            <div class="item-meta">📍 ${item.location}</div>
+                            <div class="item-meta">📁 Category: ${item.category}</div>
+                            <div class="item-meta">👤 Seller: ${item.sellerName || 'Campus Student'}</div>
+                            <a href="https://wa.me/${item.whatsapp}?text=Hi, I am interested in your item: ${item.title} on UWU Mart." target="_blank" class="btn-whatsapp">Contact via WhatsApp</a>
+                            ${(currentUser && (currentUser.email === 'ict24067@std.uwu.ac.lk' || item.sellerEmail === currentUser.email)) ? 
+                              `<button class="btn-delete" onclick="deleteItem('${item._id}')">Remove Item</button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                itemsContainer.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:red;">Failed to retrieve ads.</p>`;
+            }
+        }
+
+        // 🗑️ Delete Item Call
+        async function deleteItem(id) {
+            if(!confirm("Are you sure you want to delete this ad?")) return;
+            const res = await fetch(`/api/items/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentUser?.email })
+            });
+            const data = await res.json();
+            alert(data.message);
+            loadMarketplaceItems();
+        }
+
+        // --- AUTH CALLS & FIXES ---
+        document.getElementById('btn-reg-otp').addEventListener('click', async () => {
+            const email = document.getElementById('reg-email').value;
+            const res = await fetch('/api/auth/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            alert(data.message);
+        });
+
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const email = document.getElementById('reg-email').value;
+            const otp = document.getElementById('reg-otp').value;
+            const name = document.getElementById('reg-name').value;
+            const studentId = document.getElementById('reg-id').value;
+            const phone = document.getElementById('reg-phone').value;
+            const role = document.getElementById('reg-role').value;
+            const password = document.getElementById('reg-password').value;
+
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp, name, studentId, phone, role, password, photoUrl: regPhotoBase64 })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if(data.success) { registerSection.style.display = 'none'; loginSection.style.display = 'block'; }
+        });
+
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+
+            if (res.status === 444) {
+                alert("Account does not exist! Switching to registration form.");
+                loginSection.style.display = 'none';
+                registerSection.style.display = 'block';
+                document.getElementById('reg-email').value = email;
+                return;
+            }
+
+            alert(data.message);
+            if(data.success) {
+                localStorage.setItem('user', JSON.stringify(data.user));
+                location.reload();
+            }
+        });
+
+        document.getElementById('btn-forgot-otp').addEventListener('click', async () => {
+            const email = document.getElementById('forgot-email').value;
+            const res = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if(data.success) forgotFields.style.display = 'block';
+        });
+
+        document.getElementById('btn-confirm-reset').addEventListener('click', async () => {
+            const email = document.getElementById('forgot-email').value;
+            const otp = document.getElementById('forgot-otp').value;
+            const newPassword = document.getElementById('forgot-new-pass').value;
+
+            const res = await fetch('/api/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp, newPassword })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if(data.success) { forgotSection.style.display = 'none'; loginSection.style.display = 'block'; forgotFields.style.display = 'none'; }
+        });
+
+        // 📝 Submit Ad Publishing 
+        document.getElementById('btn-submit-post').addEventListener('click', async () => {
+            if(!currentUser) return alert("Please sign in first.");
+            const title = document.getElementById('post-title').value;
+            const price = document.getElementById('post-price').value;
+            const category = document.getElementById('post-category').value;
+            const locationName = document.getElementById('post-location').value;
+            const whatsapp = document.getElementById('post-whatsapp').value;
+            const description = document.getElementById('post-desc').value;
+
+            const res = await fetch('/api/items/post', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, price, category, location: locationName, whatsapp, description, imageUrl: itemPhotoBase64, sellerEmail: currentUser.email, sellerName: currentUser.name })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if(data.success) { postModal.classList.remove('active'); loadMarketplaceItems(); }
+        });
+
+        // Initialize Runtime Engine
+        updateNavbarState();
+        loadMarketplaceItems();
+    </script>
 </body>
 </html>
