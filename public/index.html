@@ -103,12 +103,53 @@
         th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
         th { background: #f8fafc; color: #475569; }
 
-        /* 📱 UNIVERSAL MOBILE RESPONSIVE MEDIA QUERIES */
+        /* 📱 UNIVERSAL MOBILE RESPONSIVE MEDIA QUERIES (FIXED UPPER CUT EXPANSION) */
         @media (max-width: 768px) {
-            .navbar { padding: 15px 20px; flex-direction: column; gap: 12px; text-align: center; }
-            .nav-buttons { flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; }
-            .btn-nav { padding: 8px 16px; font-size: 13px; flex-grow: 1; justify-content: center; }
-            .user-profile { width: 100%; justify-content: center; box-sizing: border-box; }
+            .navbar { 
+                padding: 10px 15px; 
+                flex-direction: row; 
+                justify-content: space-between; 
+                align-items: center; 
+                gap: 10px; 
+            }
+            .logo { 
+                font-size: 18px; 
+                letter-spacing: 0.5px; 
+                white-space: nowrap;
+            }
+            .nav-buttons { 
+                display: flex; 
+                flex-direction: row; 
+                align-items: center; 
+                justify-content: flex-end; 
+                gap: 6px; 
+                width: auto; 
+                max-width: 65%;
+                overflow-x: auto; 
+                white-space: nowrap;
+                scrollbar-width: none;
+            }
+            .nav-buttons::-webkit-scrollbar { 
+                display: none; 
+            }
+            .nav-buttons button, .nav-buttons .btn-nav, .nav-buttons .user-profile {
+                width: auto !important;
+                padding: 6px 12px !important;
+                font-size: 12px !important;
+                margin: 0 !important;
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                border-radius: 20px !important;
+            }
+            .user-profile { 
+                padding: 4px 10px !important; 
+            }
+            .user-avatar { 
+                width: 24px !important; 
+                height: 24px !important; 
+            }
             .hero { padding: 30px 15px; }
             .hero h1 { font-size: 26px; }
             .search-container { margin: -20px auto 25px auto; }
@@ -414,13 +455,13 @@
             if (currentUser) {
                 let adminWidget = "";
                 if (currentUser.email === 'ict24067@std.uwu.ac.lk') {
-                    adminWidget = `<button class="btn-nav btn-admin" id="btn-show-admin"><i class="fa-solid fa-crown"></i> Admin Board</button>`;
+                    adminWidget = `<button class="btn-nav btn-admin" id="btn-show-admin"><i class="fa-solid fa-crown"></i> Admin</button>`;
                 }
                 navActions.innerHTML = `
                     ${adminWidget}
-                    <button class="btn-nav btn-post" id="btn-show-post"><i class="fa-solid fa-circle-plus"></i> Create Post</button>
+                    <button class="btn-nav btn-post" id="btn-show-post"><i class="fa-solid fa-circle-plus"></i> Post</button>
                     <div class="user-profile" id="btn-open-profile">
-                        <img src="${currentUser.photoUrl}" class="user-avatar">
+                        <img src="${currentUser.photoUrl || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="user-avatar">
                         <span>${currentUser.name.split(' ')[0]}</span>
                     </div>
                 `;
