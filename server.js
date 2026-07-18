@@ -53,7 +53,6 @@ const Item = mongoose.model('Item', ItemSchema);
 
 // --- 🔒 COMPLETE API NETWORKS ---
 
-// 👑 ADMIN PORTAL AUTH CHECK
 app.get('/api/admin/users', async (req, res) => {
     try {
         await connectDB();
@@ -65,7 +64,6 @@ app.get('/api/admin/users', async (req, res) => {
     } catch(e) { res.status(500).json({ success: false }); }
 });
 
-// DELIVERIES RIDERS GRID STREAM
 app.get('/api/riders', async (req, res) => {
     try {
         await connectDB();
@@ -74,7 +72,7 @@ app.get('/api/riders', async (req, res) => {
     } catch(e) { res.status(500).json([]); }
 });
 
-// OTP EMAIL SERVICE ROUTE (POWERED BY SECURE LIFETIME BREVO ENGINE)
+// OTP EMAIL SERVICE ROUTE (POWERED BY SECURE LIFETIME GMAIL SMTP)
 app.post('/api/auth/send-otp', async (req, res) => {
     try {
         await connectDB();
@@ -88,25 +86,22 @@ app.post('/api/auth/send-otp', async (req, res) => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         await OtpModel.findOneAndUpdate({ email }, { otp, createdAt: new Date(), lastSentAt: new Date() }, { upsert: true });
 
-        // 🛡️ Automatically reads the key from Vercel Environment Variables
-        const brevoUser = 'sspmaduthisara@gmail.com';
-        const brevoKey = process.env.BREVO_KEY;
+        const emailUser = process.env.EMAIL_USER;
+        const emailPass = process.env.EMAIL_PASS;
 
-        if (!brevoKey) {
-            console.log("🔒 Running on Master OTP fallback mode. Key not detected in Vercel.");
+        if (!emailUser || !emailPass) {
+            console.log("🔒 Running on Master OTP fallback mode. Gmail Keys not detected in Vercel.");
             return res.json({ success: true, message: "ℹ️ System verification online. Use Master OTP: 123456" });
         }
 
         try {
             let transporter = nodemailer.createTransport({
-                host: 'smtp-relay.brevo.com',
-                port: 587,
-                secure: false, 
-                auth: { user: brevoUser, pass: brevoKey }
+                service: 'gmail',
+                auth: { user: emailUser, pass: emailPass }
             });
 
             await transporter.sendMail({
-                from: `"UWU Mart Engine" <${brevoUser}>`,
+                from: `"UWU Mart Engine" <${emailUser}>`,
                 to: email,
                 subject: 'Your UWU Mart OTP Code',
                 html: `
@@ -130,7 +125,6 @@ app.post('/api/auth/send-otp', async (req, res) => {
     }
 });
 
-// ACCOUNT INSCRIPTION CREATION
 app.post('/api/auth/register', async (req, res) => {
     try {
         await connectDB();
@@ -149,7 +143,6 @@ app.post('/api/auth/register', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false, message: "Identity parameters clash or user exists." }); }
 });
 
-// LOGIN AUTHENTICATOR
 app.post('/api/auth/login', async (req, res) => {
     try {
         await connectDB();
@@ -206,7 +199,7 @@ app.delete('/api/items/:id', async (req, res) => {
     } catch(e) { res.status(500).json({ message: "Mutation Failure." }); }
 });
 
-// PASSWORD RESTORATION ENGINES
+// PASSWORD RESTORATION ENGINES WITH GMAIL
 app.post('/api/auth/forgot-password', async (req, res) => {
     try {
         await connectDB();
@@ -216,14 +209,14 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         await OtpModel.findOneAndUpdate({ email }, { otp, createdAt: new Date(), lastSentAt: new Date() }, { upsert: true });
 
-        const brevoUser = 'sspmaduthisara@gmail.com';
-        const brevoKey = process.env.BREVO_KEY;
+        const emailUser = process.env.EMAIL_USER;
+        const emailPass = process.env.EMAIL_PASS;
 
-        if (!brevoKey) return res.json({ success: true, message: "ℹ️ Network busy. Use Master OTP: 123456 to reset password instantly." });
+        if (!emailUser || !emailPass) return res.json({ success: true, message: "ℹ️ Network busy. Use Master OTP: 123456 to reset password instantly." });
 
         try {
-            let transporter = nodemailer.createTransport({ host: 'smtp-relay.brevo.com', port: 587, secure: false, auth: { user: brevoUser, pass: brevoKey } });
-            await transporter.sendMail({ from: '"UWU Mart Engine" <' + brevoUser + '>', to: email, subject: 'Password Recovery Token', text: `Code Token: ${otp}` });
+            let transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: emailUser, pass: emailPass } });
+            await transporter.sendMail({ from: '"UWU Mart Engine" <' + emailUser + '>', to: email, subject: 'Password Recovery Token', text: `Code Token: ${otp}` });
             res.json({ success: true, message: "Recovery key sent to email." });
         } catch (err) {
             res.json({ success: true, message: "ℹ️ Network busy. Use Master OTP: 123456 to reset password instantly." });
@@ -247,4 +240,4 @@ app.post('/api/auth/reset-password', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Automated Secure Engine Running on Port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Automated Secure Engine Running on Gmail SMTP`));
