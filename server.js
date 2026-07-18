@@ -5,25 +5,24 @@ const path = require('path');
 
 const app = express();
 
-// 📸 GALLERY PHOTO OPTIMIZATION: Allows large Base64 image strings from gallery
+// Handle large photo uploads securely
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const MONGO_URI = "mongodb+srv://ict24067_db_user:xA6UNyQrqOkhMEhK@cluster0.2axxnyj.mongodb.net/uwumart?appName=Cluster0";
 
-// 🚀 Fixed Vercel Serverless Connection Overhead
 async function connectDB() {
     if (mongoose.connection.readyState >= 1) return;
     return mongoose.connect(MONGO_URI);
 }
 
-// --- 🗂️ DATABASE SCHEMAS ---
+// --- DATABASES INTERFACES ---
 const OtpSchema = new mongoose.Schema({
     email: { type: String, required: true },
     otp: { type: String, required: true },
     createdAt: { type: Date, default: Date.now, expires: 300 }, 
-    lastSentAt: { type: Date, default: Date.now } // Tracks 60-second cooldown
+    lastSentAt: { type: Date, default: Date.now }
 });
 const OtpModel = mongoose.model('Otp', OtpSchema);
 
@@ -34,8 +33,7 @@ const UserSchema = new mongoose.Schema({
     phone: { type: String, required: true },
     photoUrl: { type: String, default: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }, 
     role: { type: String, enum: ['Student', 'Delivery'], default: 'Student' },
-    password: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now }
+    password: { type: String, required: true }
 });
 const User = mongoose.model('User', UserSchema);
 
@@ -53,139 +51,24 @@ const ItemSchema = new mongoose.Schema({
 });
 const Item = mongoose.model('Item', ItemSchema);
 
-// --- 🌐 API ENDPOINTS ---
-
-// 1. Send OTP (With 60s Spam Protection Cooldown)
+// --- ENDPOINTS ---
 app.post('/api/auth/send-otp', async (req, res) => {
     try {
         await connectDB();
         let { email } = req.body;
-        if (!email) return res.status(400).json({ success: false, message: "Email address is required." });
+        if (!email) return res.status(400).json({ success: false, message: "Email required." });
         
         email = email.toLowerCase().trim();
-        const uwuEmailRegex = /^[a-zA-Z0-9._%+-]+@std\.uwu\.ac\.lk$/;
-
-        if (!uwuEmailRegex.test(email)) {
-            return res.status(400).json({ success: false, message: "Only @std.uwu.ac.lk email addresses are allowed." });
+        if (!(/^[a-zA-Z0-9._%+-]+@std\.uwu\.ac\.lk$/).test(email)) {
+            return res.status(400).json({ success: false, message: "Only @std.uwu.ac.lk email is allowed." });
         }
 
-        // ⏱️ Cooldown Check
         const existingOtp = await OtpModel.findOne({ email });
-        if (existingOtp) {
-            const timePassed = Date.now() - new Date(existingOtp.lastSentAt).getTime();
-            if (timePassed < 60000) {
-                const secondsLeft = Math.ceil((60000 - timePassed) / 1000);
-                return res.status(400).json({ 
-                    success: false, 
-                    message: `Please wait ${secondsLeft} seconds before requesting a new OTP.` 
-                });
-            }
+        if (existingOtp && (Date.now() - new Date(existingOtp.lastSentAt).getTime() < 60000)) {
+            return res.status(400).json({ success: false, message: "Please wait 60 seconds before resending." });
         }
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        let transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: { user: 'sspmaduthisara@gmail.com', pass: 'iway yrzc epgs hkoa' }
-        });
-
-        let mailOptions = {
-            from: '"UWU Mart" <sspmaduthisara@gmail.com>',
-            to: email,
-            subject: 'UWU Mart Verification Code',
-            text: `Your UWU Mart verification code is: ${otp}. Valid for 5 minutes.`
-        };
-
-        // Fixed Vercel Lambda Execution Timeout
-        await transporter.sendMail(mailOptions);
-
-        await OtpModel.findOneAndUpdate(
-            { email },
-            { otp, createdAt: new Date(), lastSentAt: new Date() },
-            { upsert: true, new: true }
-        );
-
-        res.json({ success: true, message: "Verification code sent to your campus email." });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Failed to process OTP request. Try again." });
-    }
-});
-
-// 2. Register User (Saves Base64 Image)
-app.post('/api/auth/register', async (req, res) => {
-    try {
-        await connectDB();
-        let { email, otp, name, studentId, phone, photoUrl, role, password } = req.body;
-        if (!email || !otp || !name || !password) return res.status(400).json({ success: false, message: "Required fields are missing." });
-        
-        email = email.toLowerCase().trim();
-
-        const otpRecord = await OtpModel.findOne({ email });
-        if (!otpRecord || otpRecord.otp !== otp) {
-            return res.status(400).json({ success: false, message: "Invalid or expired OTP code." });
-        }
-
-        const newUser = new User({ email, name, studentId, phone, photoUrl, role, password });
-        await newUser.save();
-        
-        await OtpModel.deleteOne({ email });
-        res.json({ success: true, message: "Registration successful! You can now log in." });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Email already exists or a database error occurred." });
-    }
-});
-
-// 3. Login User (Autocheck: Redirects with code 444 if unregistered)
-app.post('/api/auth/login', async (req, res) => {
-    try {
-        await connectDB();
-        let { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ success: false, message: "Please provide both email and password." });
-
-        email = email.toLowerCase().trim();
-
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(444).json({ success: false, message: "Account does not exist. Please register first." });
-        }
-
-        if (user.password !== password) {
-            return res.status(400).json({ success: false, message: "Invalid password. Please try again." });
-        }
-        
-        res.json({ 
-            success: true, 
-            message: "Login successful.",
-            user: { email: user.email, name: user.name, role: user.role, photoUrl: user.photoUrl } 
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Server error encountered during login." });
-    }
-});
-
-// 4. Forget Password - Step 1: Request Reset Code
-app.post('/api/auth/forgot-password', async (req, res) => {
-    try {
-        await connectDB();
-        let { email } = req.body;
-        if (!email) return res.status(400).json({ success: false, message: "Email is required." });
-
-        email = email.toLowerCase().trim();
-        const user = await User.findOne({ email });
-        if (!user) return res.status(404).json({ success: false, message: "No account found with this campus email." });
-
-        // Cooldown Check for Password Reset OTP
-        const existingOtp = await OtpModel.findOne({ email });
-        if (existingOtp) {
-            const timePassed = Date.now() - new Date(existingOtp.lastSentAt).getTime();
-            if (timePassed < 60000) {
-                const secondsLeft = Math.ceil((60000 - timePassed) / 1000);
-                return res.status(400).json({ success: false, message: `Please wait ${secondsLeft} seconds before requesting another code.` });
-            }
-        }
-
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
         let transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: { user: 'sspmaduthisara@gmail.com', pass: 'iway yrzc epgs hkoa' }
@@ -194,85 +77,103 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         await transporter.sendMail({
             from: '"UWU Mart" <sspmaduthisara@gmail.com>',
             to: email,
-            subject: 'UWU Mart Password Reset Code',
-            text: `Your code to reset UWU Mart password is: ${otp}. Valid for 5 minutes.`
+            subject: 'UWU Mart Verification Code',
+            text: `Your verification code is: ${otp}`
         });
 
-        await OtpModel.findOneAndUpdate(
-            { email }, 
-            { otp, createdAt: new Date(), lastSentAt: new Date() }, 
-            { upsert: true, new: true }
-        );
-
-        res.json({ success: true, message: "Password reset OTP sent to your campus email." });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Server error occurred during reset request." });
-    }
+        await OtpModel.findOneAndUpdate({ email }, { otp, createdAt: new Date(), lastSentAt: new Date() }, { upsert: true });
+        res.json({ success: true, message: "Verification code sent to email." });
+    } catch (e) { res.status(500).json({ success: false, message: "OTP Send Failure." }); }
 });
 
-// 5. Forget Password - Step 2: Verify & Update
+app.post('/api/auth/register', async (req, res) => {
+    try {
+        await connectDB();
+        let { email, otp, name, studentId, phone, photoUrl, role, password } = req.body;
+        email = email.toLowerCase().trim();
+
+        const otpRecord = await OtpModel.findOne({ email });
+        if (!otpRecord || otpRecord.otp !== otp) return res.status(400).json({ success: false, message: "Invalid/Expired OTP." });
+
+        const newUser = new User({ email, name, studentId, phone, photoUrl, role, password });
+        await newUser.save();
+        await OtpModel.deleteOne({ email });
+        res.json({ success: true, message: "Registration completely successful!" });
+    } catch (e) { res.status(500).json({ success: false, message: "User already exists or inputs invalid." }); }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        await connectDB();
+        let { email, password } = req.body;
+        email = email.toLowerCase().trim();
+
+        const user = await User.findOne({ email });
+        if (!user) return res.status(444).json({ success: false, message: "Account non-existent." });
+        if (user.password !== password) return res.status(400).json({ success: false, message: "Wrong password." });
+
+        res.json({ success: true, message: "Logged in.", user: { email: user.email, name: user.name, photoUrl: user.photoUrl } });
+    } catch (e) { res.status(500).json({ success: false }); }
+});
+
+app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+        await connectDB();
+        let { email } = req.body; email = email.toLowerCase().trim();
+        const user = await User.findOne({ email });
+        if(!user) return res.status(404).json({ success: false, message: "Account not found." });
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        let transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: 'sspmaduthisara@gmail.com', pass: 'iway yrzc epgs hkoa' } });
+        await transporter.sendMail({ from: '"UWU Mart"', to: email, subject: 'Reset Pass', text: `Code: ${otp}` });
+        
+        await OtpModel.findOneAndUpdate({ email }, { otp, createdAt: new Date(), lastSentAt: new Date() }, { upsert: true });
+        res.json({ success: true, message: "Reset code dispatched." });
+    } catch(e) { res.status(500).json({ success: false }); }
+});
+
 app.post('/api/auth/reset-password', async (req, res) => {
     try {
         await connectDB();
-        let { email, otp, newPassword } = req.body;
-        if (!email || !otp || !newPassword) return res.status(400).json({ success: false, message: "All fields are required." });
-
-        email = email.toLowerCase().trim();
+        let { email, otp, newPassword } = req.body; email = email.toLowerCase().trim();
         const otpRecord = await OtpModel.findOne({ email });
-
-        if (!otpRecord || otpRecord.otp !== otp) {
-            return res.status(400).json({ success: false, message: "Invalid or expired reset OTP code." });
-        }
+        if (!otpRecord || otpRecord.otp !== otp) return res.status(400).json({ success: false, message: "Invalid OTP." });
 
         await User.findOneAndUpdate({ email }, { password: newPassword });
         await OtpModel.deleteOne({ email });
-
-        res.json({ success: true, message: "Password updated successfully. You can now log in." });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Failed to update new password." });
-    }
+        res.json({ success: true, message: "Password updated successfully." });
+    } catch (e) { res.status(500).json({ success: false }); }
 });
 
-// 6. Post Ad
 app.post('/api/items/post', async (req, res) => {
-    try { 
+    try {
         await connectDB();
-        const { title, price, category, location, whatsapp, description, imageUrl, sellerEmail, sellerName } = req.body;
-        const newItem = new Item({ title, price, category, location, whatsapp, description, imageUrl, sellerEmail, sellerName });
+        const newItem = new Item(req.body);
         await newItem.save();
-        res.json({ success: true, message: "Advertisement published successfully." });
-    } catch (err) { res.status(500).json({ success: false, message: "Failed to post advertisement." }); }
+        res.json({ success: true, message: "Ad published!" });
+    } catch(e) { res.status(500).json({ success: false }); }
 });
 
-// 7. Get Items
 app.get('/api/items', async (req, res) => {
-    try { 
+    try {
         await connectDB();
-        const { search, category } = req.query;
-        let query = {};
-        if (category) query.category = category;
-        if (search) query.title = { $regex: search, $options: 'i' };
-        const items = await Item.find(query).sort({ createdAt: -1 });
+        const items = await Item.find().sort({ createdAt: -1 });
         res.json(items);
-    } catch (e) { res.status(500).json([]); }
+    } catch(e) { res.status(500).json([]); }
 });
 
-// 8. Delete Override (👑 Master Admin Lock)
 app.delete('/api/items/:id', async (req, res) => {
-    try { 
+    try {
         await connectDB();
         const { id } = req.params;
         const { email } = req.body;
         const item = await Item.findById(id);
-        if (!item) return res.status(404).json({ message: "Item not found." });
-        
         if (email === 'ict24067@std.uwu.ac.lk' || item.sellerEmail === email) {
             await Item.findByIdAndDelete(id);
-            return res.json({ success: true, message: "Item deleted successfully." });
+            return res.json({ success: true, message: "Ad deleted cleanly." });
         }
-        res.status(403).json({ message: "Access denied." });
-    } catch (e) { res.status(500).json({ message: "Server error." }); }
+        res.status(403).json({ message: "Unauthorized." });
+    } catch(e) { res.status(500).json({ message: "Error." }); }
 });
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(3000, () => console.log(`🚀 Server up on port 3000`));
