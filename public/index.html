@@ -28,7 +28,8 @@
         .btn-post:hover { background: #e0a800; }
         .btn-admin { background: #ef4444; color: white; }
 
-        .user-profile { display: flex; align-items: center; gap: 10px; font-weight: 600; background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-weight: 600; background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        .user-profile:hover { background: rgba(255,255,255,0.3); }
         .user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
 
         /* 🎪 BANNER HUB */
@@ -51,7 +52,7 @@
 
         /* 🗂️ CATEGORY CAROUSEL BADGES */
         .category-bar { display: flex; gap: 10px; overflow-x: auto; padding: 5px 5px 15px 5px; margin-bottom: 25px; scrollbar-width: none; }
-        .category-bar::-webkit-scrollbar { display: none; } /* Safari and Chrome */
+        .category-bar::-webkit-scrollbar { display: none; }
         .category-badge { background: white; color: #475569; padding: 8px 18px; border-radius: 20px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); white-space: nowrap; border: 1px solid #e2e8f0; }
         .category-badge.active, .category-badge:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
@@ -234,6 +235,29 @@
         </div>
     </div>
 
+    <!-- 👤 DYNAMIC USER PROFILE VIEW & EDIT MODAL -->
+    <div class="modal-overlay" id="profile-modal">
+        <div class="auth-box">
+            <span class="close-modal" id="btn-close-profile">&times;</span>
+            <h2 class="title">My Profile Hub</h2>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img id="profile-display-avatar" src="" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary);">
+                <label style="font-size: 13px; color: var(--primary); font-weight: bold; display: block; margin-top: 8px; cursor: pointer;">
+                    <i class="fa-solid fa-camera"></i> Change Photo
+                    <input type="file" id="profile-upload-photo" accept="image/*" style="display: none;">
+                </label>
+            </div>
+            <div style="background: #f8fafc; padding: 12px; border-radius: 12px; font-size: 13px; color: #475569; margin-bottom: 15px; border: 1px solid #e2e8f0;">
+                <i class="fa-solid fa-envelope"></i> <b>Email:</b> <span id="profile-display-email"></span>
+            </div>
+            <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-left: 4px;">Update Name:</label>
+            <input type="text" id="profile-edit-name" placeholder="Your Full Name">
+            
+            <button id="btn-save-profile" style="background: var(--primary); margin-top: 10px;"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+            <button id="btn-profile-logout" style="background: #ef4444; margin-top: 10px; color: white;"><i class="fa-solid fa-right-from-bracket"></i> Logout Account</button>
+        </div>
+    </div>
+
     <!-- 📝 POST NEW AD MODAL OVERLAY -->
     <div class="modal-overlay" id="post-modal">
         <div class="auth-box">
@@ -300,6 +324,7 @@
         let currentUser = JSON.parse(localStorage.getItem('user')) || null;
         let regPhotoBase64 = "";
         let itemPhotoBase64 = "";
+        let profilePhotoBase64 = "";
         let currentSelectedCategory = "All";
         let activeMainTab = "market"; 
 
@@ -308,6 +333,7 @@
         const postModal = document.getElementById('post-modal');
         const adminModal = document.getElementById('admin-modal');
         const detailsModal = document.getElementById('details-modal');
+        const profileModal = document.getElementById('profile-modal');
         const loginSection = document.getElementById('login-section');
         const registerSection = document.getElementById('register-section');
         const forgotSection = document.getElementById('forgot-section');
@@ -321,6 +347,7 @@
         document.getElementById('btn-close-post').addEventListener('click', () => postModal.classList.remove('active'));
         document.getElementById('btn-close-admin').addEventListener('click', () => adminModal.classList.remove('active'));
         document.getElementById('btn-close-details').addEventListener('click', () => detailsModal.classList.remove('active'));
+        document.getElementById('btn-close-profile').addEventListener('click', () => profileModal.classList.remove('active'));
 
         // Inner Switching Views
         document.getElementById('link-goto-register').addEventListener('click', (e) => { e.preventDefault(); loginSection.style.display = 'none'; registerSection.style.display = 'block'; });
@@ -339,6 +366,15 @@
             const file = e.target.files[0];
             const reader = new FileReader();
             reader.onloadend = () => { itemPhotoBase64 = reader.result; };
+            if (file) reader.readAsDataURL(file);
+        });
+        document.getElementById('profile-upload-photo').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => { 
+                profilePhotoBase64 = reader.result; 
+                document.getElementById('profile-display-avatar').src = reader.result;
+            };
             if (file) reader.readAsDataURL(file);
         });
 
@@ -383,22 +419,46 @@
                 navActions.innerHTML = `
                     ${adminWidget}
                     <button class="btn-nav btn-post" id="btn-show-post"><i class="fa-solid fa-circle-plus"></i> Create Post</button>
-                    <div class="user-profile">
+                    <div class="user-profile" id="btn-open-profile">
                         <img src="${currentUser.photoUrl}" class="user-avatar">
                         <span>${currentUser.name.split(' ')[0]}</span>
                     </div>
-                    <button class="btn-nav" id="btn-logout" style="background:#64748b; color:white;">Logout</button>
                 `;
                 document.getElementById('btn-show-post')?.addEventListener('click', () => postModal.classList.add('active'));
                 document.getElementById('btn-show-admin')?.addEventListener('click', () => {
                     adminModal.classList.add('active');
                     loadAdminDashboardData();
                 });
-                document.getElementById('btn-logout').addEventListener('click', () => {
-                    localStorage.removeItem('user'); currentUser = null; location.reload();
+                
+                // Open Custom Profile Modal Layout
+                document.getElementById('btn-open-profile').addEventListener('click', () => {
+                    document.getElementById('profile-display-avatar').src = currentUser.photoUrl || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                    document.getElementById('profile-display-email').innerText = currentUser.email;
+                    document.getElementById('profile-edit-name').value = currentUser.name;
+                    profilePhotoBase64 = currentUser.photoUrl;
+                    profileModal.classList.add('active');
                 });
             }
         }
+
+        // 👤 PROFILE SAVE UPDATES ENGINE
+        document.getElementById('btn-save-profile').addEventListener('click', () => {
+            const updatedName = document.getElementById('profile-edit-name').value.trim();
+            if(!updatedName) return alert("Name field cannot be left blank!");
+            
+            currentUser.name = updatedName;
+            currentUser.photoUrl = profilePhotoBase64;
+            
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            alert("Profile successfully customized!");
+            profileModal.classList.remove('active');
+            initializeNavbarState();
+        });
+
+        // 🔒 MOBILE VIEW INTEGRATED PROFILE LOGOUT
+        document.getElementById('btn-profile-logout').addEventListener('click', () => {
+            localStorage.removeItem('user'); currentUser = null; location.reload();
+        });
 
         // 👑 LOAD ADMIN PANELS
         async function loadAdminDashboardData() {
@@ -537,7 +597,6 @@
             const email = document.getElementById('reg-email').value.trim();
             if(!email) return alert("Please type your campus email first.");
             
-            // 🛑 FREEZE BUTTON IMMEDIATELY TO PREVENT MULTI-CLICK SPAM
             const btn = document.getElementById('btn-reg-otp');
             btn.disabled = true;
             btn.innerText = "Sending Code...";
@@ -548,7 +607,6 @@
                 alert(data.message);
                 startCountdown('btn-reg-otp', 60);
             } catch (err) {
-                // Perfect Frontend Fallback if server lags
                 alert("ℹ️ Campus Email network busy. For instant activation, use Master OTP: 123456");
                 startCountdown('btn-reg-otp', 60);
             }
@@ -559,7 +617,6 @@
             const email = document.getElementById('forgot-email').value.trim();
             if(!email) return alert("Please type your campus email first.");
             
-            // 🛑 FREEZE BUTTON IMMEDIATELY
             const btn = document.getElementById('btn-forgot-otp');
             btn.disabled = true;
             btn.innerText = "Sending Reset Token...";
