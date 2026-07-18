@@ -4,15 +4,18 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 
 const app = express();
-app.use(express.json());
+
+// 📸 GALLERY PHOTO OPTIMIZATION: Increases limit to allow large Base64 image uploads from phone gallery
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const MONGO_URI = "mongodb+srv://ict24067_db_user:xA6UNyQrqOkhMEhK@cluster0.2axxnyj.mongodb.net/uwumart?appName=Cluster0";
 
-// 🚀 Vercel Serverless Optimization: Prevents multiple connection overheads and fixes "Server Error"
+// Vercel Connection Pooling Fix
 if (mongoose.connection.readyState === 0) {
     mongoose.connect(MONGO_URI)
-        .then(() => console.log("🟢 UWU Mart DB Connected Successfully"))
+        .then(() => console.log("🟢 UWU Mart DB Connected"))
         .catch(err => console.error("🔴 DB Connection Error:", err));
 }
 
@@ -21,7 +24,7 @@ if (mongoose.connection.readyState === 0) {
 const OtpSchema = new mongoose.Schema({
     email: { type: String, required: true },
     otp: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now, expires: 300 } // Auto-deletes after 5 minutes
+    createdAt: { type: Date, default: Date.now, expires: 300 } // Auto-delete in 5 mins
 });
 const OtpModel = mongoose.model('Otp', OtpSchema);
 
@@ -30,7 +33,7 @@ const UserSchema = new mongoose.Schema({
     name: { type: String, required: true },
     studentId: { type: String, required: true },
     phone: { type: String, required: true },
-    photoUrl: { type: String, default: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' },
+    photoUrl: { type: String, default: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }, // Supports URL or Base64 string from gallery
     role: { type: String, enum: ['Student', 'Delivery'], default: 'Student' },
     password: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
@@ -53,7 +56,7 @@ const Item = mongoose.model('Item', ItemSchema);
 
 // --- 🌐 API ENDPOINTS ---
 
-// 1. Send OTP (High Speed & English Response)
+// 1. Send OTP
 app.post('/api/auth/send-otp', async (req, res) => {
     try {
         let { email } = req.body;
@@ -86,14 +89,11 @@ app.post('/api/auth/send-otp', async (req, res) => {
             from: '"UWU Mart" <sspmaduthisara@gmail.com>',
             to: email,
             subject: 'UWU Mart Verification Code',
-            text: `Your UWU Mart verification code is: ${otp}. It is valid for 5 minutes.`
+            text: `Your UWU Mart verification code is: ${otp}. Valid for 5 minutes.`
         };
 
         transporter.sendMail(mailOptions, (err) => {
-            if (err) {
-                console.error("Nodemailer Error: ", err);
-                return res.status(500).json({ success: false, message: "Failed to send OTP email." });
-            }
+            if (err) return res.status(500).json({ success: false, message: "Failed to send OTP email." });
             res.json({ success: true, message: "Verification code sent to your campus email." });
         });
     } catch (dbErr) {
@@ -101,7 +101,7 @@ app.post('/api/auth/send-otp', async (req, res) => {
     }
 });
 
-// 2. Register User (Fixed & Verified)
+// 2. Register User (Accepts Base64 Photo from Gallery)
 app.post('/api/auth/register', async (req, res) => {
     let { email, otp, name, studentId, phone, photoUrl, role, password } = req.body;
     if (!email || !otp || !name || !password) return res.status(400).json({ success: false, message: "Required fields are missing." });
@@ -110,7 +110,6 @@ app.post('/api/auth/register', async (req, res) => {
 
     try {
         const otpRecord = await OtpModel.findOne({ email });
-        
         if (!otpRecord || otpRecord.otp !== otp) {
             return res.status(400).json({ success: false, message: "Invalid or expired OTP code." });
         }
@@ -121,11 +120,11 @@ app.post('/api/auth/register', async (req, res) => {
         await OtpModel.deleteOne({ email });
         res.json({ success: true, message: "Registration successful! You can now log in." });
     } catch (err) {
-        res.status(500).json({ success: false, message: "Email already exists or a database error occurred." });
+        res.status(500).json({ success: false, message: "Email already exists or database error." });
     }
 });
 
-// 3. Login User
+// 3. Login User (Smart Account Check: Directs user to register if account is missing)
 app.post('/api/auth/login', async (req, res) => {
     try {
         let { email, password } = req.body;
@@ -133,8 +132,16 @@ app.post('/api/auth/login', async (req, res) => {
 
         email = email.toLowerCase().trim();
 
-        const user = await User.findOne({ email, password });
-        if (!user) return res.status(400).json({ success: false, message: "Invalid email or password." });
+        // Check if user exists in the system
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Account does not exist. Please register first." });
+        }
+
+        // Validate password
+        if (user.password !== password) {
+            return res.status(400).json({ success: false, message: "Invalid password. Please try again." });
+        }
         
         res.json({ 
             success: true, 
@@ -146,7 +153,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// 🆕 4. Forget Password - Step 1: Request Reset OTP (Checks if user actually exists first)
+// 4. Forget Password - Request Reset OTP
 app.post('/api/auth/forgot-password', async (req, res) => {
     try {
         let { email } = req.body;
@@ -154,7 +161,6 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
         email = email.toLowerCase().trim();
         const user = await User.findOne({ email });
-        
         if (!user) return res.status(404).json({ success: false, message: "No account found with this campus email." });
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -169,7 +175,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
             from: '"UWU Mart" <sspmaduthisara@gmail.com>',
             to: email,
             subject: 'UWU Mart Password Reset Code',
-            text: `Your code to reset UWU Mart account password is: ${otp}. Valid for 5 minutes.`
+            text: `Your code to reset UWU Mart password is: ${otp}. Valid for 5 minutes.`
         }, (err) => {
             if (err) return res.status(500).json({ success: false, message: "Failed to send reset code email." });
             res.json({ success: true, message: "Password reset OTP sent to your campus email." });
@@ -179,7 +185,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     }
 });
 
-// 🆕 5. Forget Password - Step 2: Verify OTP & Save New Password
+// 5. Forget Password - Verify & Update Password
 app.post('/api/auth/reset-password', async (req, res) => {
     try {
         let { email, otp, newPassword } = req.body;
@@ -225,7 +231,7 @@ app.get('/api/items', async (req, res) => {
     res.json(items);
 });
 
-// 8. Global Management API (🔒 Strengthened Super Admin Privilege Override)
+// 8. Global Delete API (👑 SUPREME ADMIN PRIVILEGE OVERRIDE ALLOWED FOR ict24067@std.uwu.ac.lk)
 app.delete('/api/items/:id', async (req, res) => {
     const { id } = req.params;
     const { email } = req.body;
@@ -233,10 +239,9 @@ app.delete('/api/items/:id', async (req, res) => {
     const item = await Item.findById(id);
     if (!item) return res.status(404).json({ message: "Item not found." });
     
-    // 👑 MASTER OVERRIDE: ict24067@std.uwu.ac.lk has supreme control to bypass ownership validation
     if (email === 'ict24067@std.uwu.ac.lk' || item.sellerEmail === email) {
         await Item.findByIdAndDelete(id);
-        return res.json({ success: true, message: "Item deleted successfully by authorization." });
+        return res.json({ success: true, message: "Item deleted successfully by master/owner authorization." });
     }
     
     res.status(403).json({ message: "Access denied. You are not authorized to delete this." });
@@ -246,7 +251,6 @@ app.delete('/api/items/:id', async (req, res) => {
 app.get('/api/admin/dashboard', async (req, res) => {
     const adminEmail = req.headers['admin-email'];
     
-    // 👑 MASTER OVERRIDE LOCK
     if (adminEmail !== 'ict24067@std.uwu.ac.lk') {
         return res.status(403).json({ message: "Access Denied: Restricted to Super Admin only." });
     }
