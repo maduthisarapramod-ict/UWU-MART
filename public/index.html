@@ -51,6 +51,7 @@
 
         /* 🗂️ CATEGORY CAROUSEL BADGES */
         .category-bar { display: flex; gap: 10px; overflow-x: auto; padding: 5px 5px 15px 5px; margin-bottom: 25px; scrollbar-width: none; }
+        .category-bar::-webkit-scrollbar { display: none; } /* Safari and Chrome */
         .category-badge { background: white; color: #475569; padding: 8px 18px; border-radius: 20px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); white-space: nowrap; border: 1px solid #e2e8f0; }
         .category-badge.active, .category-badge:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
@@ -78,10 +79,10 @@
         .rider-id { background: #f1f5f9; padding: 3px 10px; border-radius: 6px; font-size: 12px; color: #475569; font-weight: 600; margin-bottom: 15px; }
 
         /* 🔒 MODAL POPUPS STRUCTURE */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 100000; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 100000; opacity: 0; pointer-events: none; transition: 0.3s; padding: 15px; box-sizing: border-box; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         
-        .auth-box { background: white; padding: 35px; border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); width: 360px; position: relative; max-height: 85vh; overflow-y: auto; }
+        .auth-box { background: white; padding: 35px; border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); width: 100%; max-width: 380px; position: relative; max-height: 85vh; overflow-y: auto; box-sizing: border-box; }
         .close-modal { position: absolute; top: 15px; right: 20px; font-size: 26px; cursor: pointer; color: #94a3b8; }
         
         input, select, button, textarea { width: 100%; padding: 12px 16px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 12px; box-sizing: border-box; font-size: 14px; }
@@ -92,14 +93,39 @@
         .title { color: #0f172a; text-align: center; margin-bottom: 20px; font-weight: 800; }
 
         /* 🔍 BIG DETAILED VIEW MODAL */
-        .details-box { background: white; max-width: 600px; width: 90vw; padding: 30px; border-radius: 24px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .details-box { background: white; max-width: 600px; width: 100%; padding: 30px; border-radius: 24px; position: relative; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
         .details-img { width: 100%; max-height: 320px; object-fit: cover; border-radius: 16px; background: #e2e8f0; margin-bottom: 20px; }
         
         /* 👑 SECRET MASTER ADMIN DASHBOARD WIDGET */
-        .admin-box { width: 750px; max-width: 95vw; background: white; padding: 35px; border-radius: 24px; position: relative; max-height: 85vh; overflow-y: auto; }
+        .admin-box { width: 100%; max-width: 750px; background: white; padding: 35px; border-radius: 24px; position: relative; max-height: 85vh; overflow-y: auto; box-sizing: border-box; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; margin-top: 15px; }
         th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
         th { background: #f8fafc; color: #475569; }
+
+        /* 📱 UNIVERSAL MOBILE RESPONSIVE MEDIA QUERIES */
+        @media (max-width: 768px) {
+            .navbar { padding: 15px 20px; flex-direction: column; gap: 12px; text-align: center; }
+            .nav-buttons { flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; }
+            .btn-nav { padding: 8px 16px; font-size: 13px; flex-grow: 1; justify-content: center; }
+            .user-profile { width: 100%; justify-content: center; box-sizing: border-box; }
+            .hero { padding: 30px 15px; }
+            .hero h1 { font-size: 26px; }
+            .search-container { margin: -20px auto 25px auto; }
+            .search-box input { padding: 12px 15px; font-size: 14px; }
+            .search-box button { padding: 0 18px; }
+            .tab-btn { font-size: 15px; padding: 8px 12px; }
+            .section-title { font-size: 18px; text-align: center; }
+            .items-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+            .auth-box { padding: 25px 20px; }
+            .details-box { padding: 20px; }
+            .admin-box { padding: 20px 15px; }
+        }
+
+        @media (max-width: 480px) {
+            .items-grid { grid-template-columns: 1fr; }
+            .view-tabs { gap: 5px; }
+            .tab-btn { font-size: 14px; padding: 8px 8px; width: 50%; text-align: center; }
+        }
     </style>
 </head>
 <body>
