@@ -9,8 +9,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 🔐 UPDATED SECURE MONGO URI WITH URL-ENCODED PASSWORD (@ -> %40)
-const MONGO_URI = "mongodb+srv://Madu2003:fYVv_vBaz2m%40rSy@cluster0.2axxnyj.mongodb.net/uwumart?appName=Cluster0";
+const MONGO_URI = "mongodb+srv://ict24067_db_user:xA6UNyQrqOkhMEhK@cluster0.2axxnyj.mongodb.net/uwumart?appName=Cluster0";
 
 async function connectDB() {
     if (mongoose.connection.readyState >= 1) return;
@@ -42,7 +41,7 @@ const ItemSchema = new mongoose.Schema({
     title: { type: String, required: true },
     price: { type: Number, required: true },
     category: { type: String, required: true },
-    location: { type: String }, 
+    location: { type: String, required: true },
     whatsapp: { type: String, required: true },
     description: { type: String },
     imageUrl: { type: String },
@@ -73,6 +72,7 @@ app.get('/api/riders', async (req, res) => {
     } catch(e) { res.status(500).json([]); }
 });
 
+// OTP EMAIL SERVICE ROUTE (POWERED BY SECURE LIFETIME GMAIL SMTP)
 app.post('/api/auth/send-otp', async (req, res) => {
     try {
         await connectDB();
@@ -199,6 +199,32 @@ app.delete('/api/items/:id', async (req, res) => {
     } catch(e) { res.status(500).json({ message: "Mutation Failure." }); }
 });
 
+app.put('/api/items/:id', async (req, res) => {
+    try {
+        await connectDB();
+        const { id } = req.params;
+        const { title, price, category, location, whatsapp, description, imageUrl, email } = req.body;
+        const target = await Item.findById(id);
+        
+        if (!target) return res.status(404).json({ success: false, message: "Post not found." });
+        
+        if (target.sellerEmail === email) {
+            target.title = title || target.title;
+            target.price = price !== undefined ? price : target.price;
+            target.category = category || target.category;
+            target.location = location || target.location;
+            target.whatsapp = whatsapp || target.whatsapp;
+            target.description = description || target.description;
+            if (imageUrl) target.imageUrl = imageUrl;
+            
+            await target.save();
+            return res.json({ success: true, message: "Post updated successfully." });
+        }
+        res.status(403).json({ message: "Access unauthorized." });
+    } catch(e) { res.status(500).json({ message: "Mutation Failure." }); }
+});
+
+// PASSWORD RESTORATION ENGINES WITH GMAIL
 app.post('/api/auth/forgot-password', async (req, res) => {
     try {
         await connectDB();
@@ -239,4 +265,4 @@ app.post('/api/auth/reset-password', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Automated Secure Engine Running on MongoDB Atlas`));
+app.listen(PORT, () => console.log(`🚀 Automated Secure Engine Running on Gmail SMTP`));
