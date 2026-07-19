@@ -44,8 +44,7 @@ const ItemSchema = new mongoose.Schema({
     location: { type: String, required: true },
     whatsapp: { type: String, required: true },
     description: { type: String },
-    // MODIFICATION: changed imageUrl string to imageUrls array to store multiple images
-    imageUrls: { type: [String] }, 
+    imageUrl: { type: String },
     sellerEmail: { type: String, required: true },
     sellerName: { type: String },
     createdAt: { type: Date, default: Date.now }
@@ -153,37 +152,6 @@ app.post('/api/auth/login', async (req, res) => {
         if (user.password !== password) return res.status(400).json({ success: false, message: "Wrong credentials." });
         res.json({ success: true, message: "Welcome back!", user: { email: user.email, name: user.name, photoUrl: user.photoUrl } });
     } catch (e) { res.status(500).json({ success: false }); }
-});
-
-app.get('/api/items/details/:id', async (req, res) => {
-    try {
-        await connectDB();
-        const item = await Item.findById(req.params.id);
-        res.json(item);
-    } catch(e) { res.status(404).json(null); }
-});
-
-app.post('/api/items/post', async (req, res) => {
-    try {
-        await connectDB();
-        const newItem = new Item(req.body);
-        await newItem.save();
-        res.json({ success: true, message: "Post indexed live!" });
-    } catch(e) { res.status(500).json({ success: false }); }
-});
-
-app.get('/api/items', async (req, res) => {
-    try {
-        await connectDB();
-        const { category, search } = req.query;
-        let queryObj = {};
-        
-        if (category && category !== "All") queryObj.category = category;
-        if (search) queryObj.title = { $regex: search, $options: 'i' };
-
-        const entries = await Item.find(queryObj).sort({ createdAt: -1 });
-        res.json(entries);
-    } catch(e) { res.status(500).json([]); }
 });
 
 app.get('/api/items/details/:id', async (req, res) => {
