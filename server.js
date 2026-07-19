@@ -9,7 +9,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-const MONGO_URI = "mongodb+srv://ict24067_db_user:xA6UNyQrqOkhMEhK@cluster0.2axxnyj.mongodb.net/uwumart?appName=Cluster0";
+// 🔐 UPDATED SECURE MONGO URI WITH URL-ENCODED PASSWORD (@ -> %40)
+const MONGO_URI = "mongodb+srv://Madu2003:fYVv_vBaz2m%40rSy@cluster0.2axxnyj.mongodb.net/uwumart?appName=Cluster0";
 
 async function connectDB() {
     if (mongoose.connection.readyState >= 1) return;
@@ -41,7 +42,7 @@ const ItemSchema = new mongoose.Schema({
     title: { type: String, required: true },
     price: { type: Number, required: true },
     category: { type: String, required: true },
-    location: { type: String }, // Location Optional කරන ලදී
+    location: { type: String }, 
     whatsapp: { type: String, required: true },
     description: { type: String },
     imageUrl: { type: String },
@@ -72,7 +73,6 @@ app.get('/api/riders', async (req, res) => {
     } catch(e) { res.status(500).json([]); }
 });
 
-// OTP EMAIL SERVICE ROUTE (POWERED BY SECURE LIFETIME GMAIL SMTP)
 app.post('/api/auth/send-otp', async (req, res) => {
     try {
         await connectDB();
@@ -199,7 +199,6 @@ app.delete('/api/items/:id', async (req, res) => {
     } catch(e) { res.status(500).json({ message: "Mutation Failure." }); }
 });
 
-// PASSWORD RESTORATION ENGINES WITH GMAIL
 app.post('/api/auth/forgot-password', async (req, res) => {
     try {
         await connectDB();
@@ -240,4 +239,4 @@ app.post('/api/auth/reset-password', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Automated Secure Engine Running on Gmail SMTP`));
+app.listen(PORT, () => console.log(`🚀 Automated Secure Engine Running on MongoDB Atlas`));
