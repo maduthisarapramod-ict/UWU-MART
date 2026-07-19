@@ -9,11 +9,15 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 🔐 UPDATED SECURE MONGO URI WITH URL-ENCODED PASSWORD (@ -> %40)
-const MONGO_URI = "mongodb+srv://Madu2003:fYVv_vBaz2m%40rSy@cluster0.2axxnyj.mongodb.net/uwumart?appName=Cluster0";
+// 🔒 SECURE: Password එක කෝඩ් එකෙන් අයින් කරලා Environment Variable එකක් පාවිච්චි කරලා තියෙන්නේ
+const MONGO_URI = process.env.MONGO_URI;
 
 async function connectDB() {
     if (mongoose.connection.readyState >= 1) return;
+    if (!MONGO_URI) {
+        console.error("❌ Error: MONGO_URI is not defined in Environment Variables!");
+        return;
+    }
     return mongoose.connect(MONGO_URI);
 }
 
@@ -90,7 +94,7 @@ app.post('/api/auth/send-otp', async (req, res) => {
         const emailPass = process.env.EMAIL_PASS;
 
         if (!emailUser || !emailPass) {
-            console.log("🔒 Running on Master OTP fallback mode. Gmail Keys not detected in Vercel.");
+            console.log("🔒 Running on Master OTP fallback mode. Gmail Keys not detected in Dashboard.");
             return res.json({ success: true, message: "ℹ️ System verification online. Use Master OTP: 123456" });
         }
 
