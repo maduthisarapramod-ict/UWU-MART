@@ -199,6 +199,22 @@ app.delete('/api/items/:id', async (req, res) => {
     } catch(e) { res.status(500).json({ message: "Mutation Failure." }); }
 });
 
+// 🔄 SECURE POST EDITING ENDPOINT FOR ORIGINAL SELLER ONLY
+app.put('/api/items/:id', async (req, res) => {
+    try {
+        await connectDB();
+        const { id } = req.params; 
+        const { email, title, price, category, location, whatsapp, description, imageUrl } = req.body;
+        const target = await Item.findById(id);
+        
+        if (target.sellerEmail === email) {
+            await Item.findByIdAndUpdate(id, { title, price, category, location, whatsapp, description, imageUrl });
+            return res.json({ success: true, message: "Post updated successfully!" });
+        }
+        res.status(403).json({ message: "Access unauthorized." });
+    } catch(e) { res.status(500).json({ message: "Mutation Failure." }); }
+});
+
 app.post('/api/auth/forgot-password', async (req, res) => {
     try {
         await connectDB();
