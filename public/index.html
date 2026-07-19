@@ -113,15 +113,7 @@
 
         /* 🔍 BIG DETAILED VIEW MODAL */
         .details-box { background: white; max-width: 600px; width: 100%; padding: 30px; border-radius: 24px; position: relative; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
-        /* MODIFICATION: original single image styling */
         .details-img { width: 100%; max-height: 320px; object-fit: cover; border-radius: 16px; background: #e2e8f0; margin-bottom: 20px; }
-
-        /* MODIFICATION: specific gallery component styles within details modal */
-        .details-main-img { width: 100%; max-height: 320px; object-fit: cover; border-radius: 16px; background: #e2e8f0; margin-bottom: 15px; }
-        .detail-thumbnails { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
-        .thumbnail-img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 2px solid transparent; opacity: 0.7; transition: 0.2s; background: #e2e8f0; }
-        .thumbnail-img:hover { opacity: 1; border-color: #e2e8f0; }
-        .thumbnail-img.active { opacity: 1; border-color: var(--primary); }
         
         /* 👑 SECRET MASTER ADMIN DASHBOARD WIDGET */
         .admin-box { width: 100%; max-width: 750px; background: white; padding: 35px; border-radius: 24px; position: relative; max-height: 85vh; overflow-y: auto; box-sizing: border-box; }
@@ -355,9 +347,8 @@
             <input type="text" id="post-location" placeholder="Location / Boarding Location">
             <input type="text" id="post-whatsapp" placeholder="WhatsApp Contact Number">
             <textarea id="post-desc" placeholder="Write description, condition or information about the item..." rows="4"></textarea>
-            <!-- MODIFICATION: changed label and added 'multiple' to input for multiple photo uploads -->
-            <label style="font-size:12px; color:#64748b; font-weight:600;">Upload Up to 3 Photos:</label>
-            <input type="file" id="post-photo" accept="image/*" multiple>
+            <label style="font-size:12px; color:#64748b; font-weight:600;">Upload Photo:</label>
+            <input type="file" id="post-photo" accept="image/*">
             <button id="btn-submit-post">Publish Post</button>
         </div>
     </div>
@@ -432,8 +423,7 @@
 
         let currentUser = JSON.parse(localStorage.getItem('user')) || null;
         let regPhotoBase64 = "";
-        // MODIFICATION: changed singular variable to array for 2-3 photos
-        let itemPhotosBase64 = []; 
+        let itemPhotoBase64 = "";
         let profilePhotoBase64 = "";
         let currentSelectedCategory = "All";
         let activeMainTab = "market"; 
@@ -506,7 +496,7 @@
                 cat_food: "🍔 உணவு & சிற்றுண்டி",
                 cat_rides: "🏍️ வளாக சவாரிகள்",
                 cat_other: "✨ மற்றவை",
-                feed_heading: "சமீබத்திய சந்தை ஊட்டங்கள் (புதியவை முதலில்)",
+                feed_heading: "சமீபத்திய சந்தை ஊட்டங்கள் (புதியவை முதலில்)",
                 riders_heading: "பதிவுசெய்யப்பட்ட வளாக விநியோக ரைடர்ஸ்",
                 rev_title: "வலைத்தள மதிப்புரைகள்",
                 rev_name_holder: "உங்கள் பெயரை உள்ளிடவும்",
@@ -561,37 +551,12 @@
             reader.onloadend = () => { regPhotoBase64 = reader.result; };
             if (file) reader.readAsDataURL(file);
         });
-
-        // MODIFICATION: changed listener to process multiple images into an array
-        document.getElementById('post-photo').addEventListener('change', async (e) => {
-            const files = e.target.files;
-            itemPhotosBase64 = []; // Reset array
-
-            if (files.length > 3) {
-                alert("Please select a maximum of 3 photos.");
-                e.target.value = ""; // Clear selection
-                return;
-            }
-
-            // Helper function to read file as Base64 Promise
-            const readFileAsBase64 = (file) => new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-
-            // Convert all selected files
-            try {
-                const promises = Array.from(files).map(file => readFileAsBase64(file));
-                itemPhotosBase64 = await Promise.all(promises);
-            } catch (error) {
-                console.error("Error converting images:", error);
-                alert("An error occurred while processing photos. Ensure file size isn't too large.");
-                itemPhotosBase64 = []; // Reset on error
-            }
+        document.getElementById('post-photo').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => { itemPhotoBase64 = reader.result; };
+            if (file) reader.readAsDataURL(file);
         });
-
         document.getElementById('profile-upload-photo').addEventListener('change', (e) => {
             const file = e.target.files[0];
             const reader = new FileReader();
@@ -740,7 +705,7 @@
 
                 const res = await fetch(url); const items = await res.json();
                 if(items.length === 0) {
-                    mainDataContainer.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; background:white; border-radius:166px; box-shadow:var(--card-shadow); font-weight:600; color:#64748b;">No post matching requirements found.</div>`;
+                    mainDataContainer.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; background:white; border-radius:16px; box-shadow:var(--card-shadow); font-weight:600; color:#64748b;">No post matching requirements found.</div>`;
                     return;
                 }
 
@@ -749,13 +714,9 @@
                     const rawText = `Hello, I am interested in your post [${item.title}] on UWU Mart.`;
                     const encodedLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(rawText)}`;
                     
-                    // MODIFICATION: using fallbacks to handle older items that might still have single singular field 'imageUrl'
-                    // but prioritizing the new array field 'imageUrls[0]' for the first image.
-                    const displayPhoto = (item.imageUrls && item.imageUrls.length > 0) ? item.imageUrls[0] : (item.imageUrl || 'https://via.placeholder.com/400x250?text=UWU+Mart');
-
                     return `
                     <div class="item-card" onclick="openPostDetailedView('${item._id}', event)">
-                        <img src="${displayPhoto}" class="item-img">
+                        <img src="${item.imageUrl || 'https://via.placeholder.com/400x250?text=UWU+Mart'}" class="item-img">
                         <div class="item-details">
                             <div class="item-price">${item.price == 0 ? 'Free / Ride' : 'LKR ' + item.price.toLocaleString()}</div>
                             <h3 class="item-title">${item.title}</h3>
@@ -781,7 +742,7 @@
                 const res = await fetch('/api/riders'); const riders = await res.json();
                 
                 if(riders.length === 0) {
-                    mainDataContainer.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; background:white; border-radius:166px; box-shadow:var(--card-shadow); color:#64748b;">No active delivery riders currently listed.</div>`;
+                    mainDataContainer.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; background:white; border-radius:16px; box-shadow:var(--card-shadow); color:#64748b;">No active delivery riders currently listed.</div>`;
                     return;
                 }
 
@@ -803,19 +764,6 @@
             } catch (e) { console.error(e); }
         }
 
-        // MODIFICATION: new JS function for thumbnail clicking within the detail modal
-        function changeDetailImage(thumbnailElement, imageUrl) {
-            // Update main image src
-            document.getElementById('main-detail-img').src = imageUrl;
-
-            // Remove active class from all sibling thumbnails
-            const thumbnails = thumbnailElement.parentElement.querySelectorAll('.thumbnail-img');
-            thumbnails.forEach(el => el.classList.remove('active'));
-
-            // Add active class to the clicked thumbnail
-            thumbnailElement.classList.add('active');
-        }
-
         // 🔍 CLICK MODAL VIEW FOR ITEMS (WITH encodeURIComponent PROTECTION)
         async function openPostDetailedView(id, event) {
             if(!currentUser) return alert("Security Notice: Please login/register onto UWU Mart to browse complete detailed descriptions.");
@@ -827,37 +775,8 @@
                 const rawText = `Hello ${item.sellerName}, I viewed your post detail sheet on UWU Mart for [${item.title}]. Let's discuss.`;
                 const encodedLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(rawText)}`;
 
-                // MODIFICATION: Create gallery HTML content based on photos array
-                let galleryHtml = "";
-                
-                // Fallback robust collection: new array or old singular field or default.
-                const imagesArray = item.imageUrls || (item.imageUrl ? [item.imageUrl] : []); 
-
-                if (imagesArray.length > 1) {
-                    // Create multi-image slider with thumbnails
-                    galleryHtml = `
-                        <div class="detail-gallery-container">
-                            <img src="${imagesArray[0]}" class="details-main-img" id="main-detail-img">
-                            <div class="detail-thumbnails">
-                                ${imagesArray.map((url, index) => `
-                                    <img src="${url}" class="thumbnail-img ${index === 0 ? 'active' : ''}" onclick="changeDetailImage(this, '${url}')">
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                } else if (imagesArray.length === 1) {
-                    // Single image as before
-                    galleryHtml = `<img src="${imagesArray[0]}" class="details-img">`;
-                } else {
-                    // No photo default
-                    galleryHtml = `<img src="https://via.placeholder.com/600x400?text=No+Photo" class="details-img">`;
-                }
-
                 document.getElementById('details-modal-content').innerHTML = `
-                    <!-- OLD single image: <img src="${item.imageUrl || ...}" class="details-img"> -->
-                    <!-- MODIFICATION: New gallery variable -->
-                    ${galleryHtml}
-
+                    <img src="${item.imageUrl || 'https://via.placeholder.com/600x400?text=No+Photo'}" class="details-img">
                     <div style="font-size:24px; font-weight:800; color:var(--primary); margin-bottom:10px;">${item.price == 0 ? 'Free / Campus Ride' : 'LKR ' + item.price.toLocaleString()}</div>
                     <h2 style="margin:0 0 15px 0; color:#0f172a; font-size:22px; font-weight:800;">${item.title}</h2>
                     <hr style="border:0; height:1px; background:#e2e8f0; margin-bottom:15px;">
@@ -998,9 +917,7 @@
 
             if(!title || !price || !location || !whatsapp) return alert("Fill essential input fields!");
 
-            const res = await fetch('/api/items/post', { method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-            // MODIFICATION: changed variable to submission data, sending array imageUrls
-            body: JSON.stringify({ title, price, category, location, whatsapp, description, imageUrls: itemPhotosBase64, sellerEmail: currentUser.email, sellerName: currentUser.name }) });
+            const res = await fetch('/api/items/post', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, price, category, location, whatsapp, description, imageUrl: itemPhotoBase64, sellerEmail: currentUser.email, sellerName: currentUser.name }) });
             const data = await res.json(); alert(data.message);
             if(data.success) { postModal.classList.remove('active'); loadMarketItemsGrid(); }
         });
