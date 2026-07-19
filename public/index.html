@@ -325,6 +325,33 @@
         </div>
     </div>
 
+    <!-- 🔄 ADDED EDIT POST MODAL HUB -->
+    <div class="modal-overlay" id="edit-modal">
+        <div class="auth-box">
+            <span class="close-modal" id="btn-close-edit">&times;</span>
+            <h2 class="title">Modify Your Post</h2>
+            <input type="hidden" id="edit-post-id">
+            <input type="text" id="edit-title" placeholder="Item Name or Post Title">
+            <input type="number" id="edit-price" placeholder="Price (LKR) - Put 0 if Free/Ride">
+            <select id="edit-category">
+                <option value="Best Food Shop">Best Food Shop</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Books">Books & Materials</option>
+                <option value="Boarding Essentials">Boarding Essentials</option>
+                <option value="Clothing">Clothing & Fashion</option>
+                <option value="Food">Food & Snacks</option>
+                <option value="Rides">Campus Rides</option>
+                <option value="Other">Other</option>
+            </select>
+            <input type="text" id="edit-location" placeholder="Location / Boarding Location (Optional)">
+            <input type="text" id="edit-whatsapp" placeholder="WhatsApp Contact Number">
+            <textarea id="edit-desc" placeholder="Write description, condition or information about the item..." rows="4"></textarea>
+            <label style="font-size:12px; color:#64748b; font-weight:600;">Update Photo (Leave empty to keep current):</label>
+            <input type="file" id="edit-photo" accept="image/*">
+            <button id="btn-update-post">Update Live Changes</button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="details-modal">
         <div class="details-box">
             <span class="close-modal" id="btn-close-details">&times;</span>
@@ -374,6 +401,7 @@
         let regPhotoBase64 = "";
         let itemPhotoBase64 = "";
         let profilePhotoBase64 = "";
+        let editPhotoBase64 = ""; // 🔄 Added edit image placeholder tracker
         let currentSelectedCategory = "All";
         let activeMainTab = "market"; 
         let currentLanguage = "en";
@@ -400,7 +428,7 @@
                 rev_name_holder: "ඔබේ නම ඇතුළත් කරන්න", rev_text_holder: "UWU Mart පිළිබඳ ඔබේ අත්දැකීම් හෝ යෝජනා බෙදාගන්න...", rev_btn: "සමාලෝචනය ඉදිරිපත් කරන්න"
             },
             ta: {
-                nav_signin: "உள்நுழைக", nav_post: "பதிவிடுக", nav_admin: "நிர்வாகி", hero_title: "UWU மார்ட் ஹப்",
+                nav_signin: "உள்நுழைக", nav_post: "பதிවිடுக", nav_admin: "நிர்வாகி", hero_title: "UWU மார்ட் ஹப்",
                 search_holder: "🔍 பொருளின் பெயர் அல்லது முக்கிய வார்த்தைகளைத் தேடுங்கள்...", tab_items: "🛒 பொருட்கள் ஊட்டம்",
                 tab_riders: "🏍️ விநியோக ரைடர்ஸ்", cat_all: "🔥 அனைத்து பதிவுகள்", cat_best_food: "🍳 சிறந்த உணவுக்கடை",
                 cat_elec: "📱 எலக்ட்ரானிக்ஸ்", cat_books: "📚 புத்தகங்கள் & பொருட்கள்", cat_boarding: "🛏️ விடுதி பொருட்கள்",
@@ -413,6 +441,7 @@
 
         const authModal = document.getElementById('auth-modal');
         const postModal = document.getElementById('post-modal');
+        const editModal = document.getElementById('edit-modal'); // 🔄 Element mapping
         const adminModal = document.getElementById('admin-modal');
         const detailsModal = document.getElementById('details-modal');
         const profileModal = document.getElementById('profile-modal');
@@ -432,6 +461,7 @@
         document.getElementById('btn-show-auth')?.addEventListener('click', () => authModal.classList.add('active'));
         document.getElementById('btn-close-auth').addEventListener('click', () => authModal.classList.remove('active'));
         document.getElementById('btn-close-post').addEventListener('click', () => postModal.classList.remove('active'));
+        document.getElementById('btn-close-edit').addEventListener('click', () => editModal.classList.remove('active')); // 🔄 Mapping close
         document.getElementById('btn-close-admin').addEventListener('click', () => adminModal.classList.remove('active'));
         document.getElementById('btn-close-details').addEventListener('click', () => detailsModal.classList.remove('active'));
         document.getElementById('btn-close-profile').addEventListener('click', () => profileModal.classList.remove('active'));
@@ -449,6 +479,11 @@
         document.getElementById('post-photo').addEventListener('change', (e) => {
             const file = e.target.files[0]; const reader = new FileReader();
             reader.onloadend = () => { itemPhotoBase64 = reader.result; };
+            if (file) reader.readAsDataURL(file);
+        });
+        document.getElementById('edit-photo').addEventListener('change', (e) => { // 🔄 Base64 mapping for edit image stream
+            const file = e.target.files[0]; const reader = new FileReader();
+            reader.onloadend = () => { editPhotoBase64 = reader.result; };
             if (file) reader.readAsDataURL(file);
         });
         document.getElementById('profile-upload-photo').addEventListener('change', (e) => {
@@ -547,6 +582,39 @@
             } catch(e) { console.error(e); }
         }
 
+        // 🔄 ADDED SHARE FUNCTION TO COPY URL TO CLIPBOARD
+        function sharePostLink(id, event) {
+            event.stopPropagation();
+            const link = window.location.origin + window.location.pathname + '?post=' + id;
+            navigator.clipboard.writeText(link).then(() => {
+                alert("🔗 Post link successfully copied to clipboard!");
+            }).catch(err => {
+                alert("Failed to copy link automatically: " + link);
+            });
+        }
+
+        // 🔄 ADDED EDIT DATA POPULATION GATEWAY FOR INDIVIDUAL POSTS
+        async function openEditPostModal(id, event) {
+            event.stopPropagation();
+            if(!currentUser) return alert("Security Notice: Please login to update records.");
+            try {
+                const res = await fetch(`/api/items/details/${id}`); 
+                const item = await res.json(); 
+                if(!item) return;
+                
+                document.getElementById('edit-post-id').value = item._id;
+                document.getElementById('edit-title').value = item.title;
+                document.getElementById('edit-price').value = item.price;
+                document.getElementById('edit-category').value = item.category;
+                document.getElementById('edit-location').value = item.location || "";
+                document.getElementById('edit-whatsapp').value = item.whatsapp;
+                document.getElementById('edit-desc').value = item.description || "";
+                editPhotoBase64 = item.imageUrl || ""; 
+                
+                editModal.classList.add('active');
+            } catch(e) { console.error(e); }
+        }
+
         async function loadMarketItemsGrid(searchQuery = "") {
             if(activeMainTab !== "market") return;
             try {
@@ -572,6 +640,12 @@
                         </div>
                     ` : '';
                     
+                    // 🔄 Conditional checking: displays 'Edit Post' only if current logged-in user is the actual listing creator (Seller)
+                    const sellerControls = (currentUser && (currentUser.email === 'ict24067@std.uwu.ac.lk' || item.sellerEmail === currentUser.email)) ? `
+                        <button class="btn-delete" style="background:#e0f2fe; color:#0369a1; margin-top:8px;" onclick="openEditPostModal('${item._id}', event)"><i class="fa-regular fa-pen-to-square"></i> Edit Post</button>
+                        <button class="btn-delete" onclick="deletePostEntry('${item._id}', event)"><i class="fa-regular fa-trash-can"></i> Remove Post</button>
+                    ` : '';
+
                     return `
                     <div class="item-card" onclick="openPostDetailedView('${item._id}', event)">
                         <img src="${item.imageUrl || 'https://via.placeholder.com/400x250?text=UWU+Mart'}" class="item-img">
@@ -584,8 +658,9 @@
                                 <i class="fa-brands fa-whatsapp" style="font-size:18px;"></i> Contact WhatsApp
                             </a>
                             
-                            ${(currentUser && (currentUser.email === 'ict24067@std.uwu.ac.lk' || item.sellerEmail === currentUser.email)) ? 
-                              `<button class="btn-delete" onclick="deletePostEntry('${item._id}', event)"><i class="fa-regular fa-trash-can"></i> Remove Post</button>` : ''}
+                            <button class="btn-nav" style="background:#f1f5f9; color:#475569; margin-top:8px; padding:8px; border-radius:8px; font-size:12px; width:100%; border:1px solid #e2e8f0;" onclick="sharePostLink('${item._id}', event)"><i class="fa-solid fa-share-nodes"></i> Share Link</button>
+                            
+                            ${sellerControls}
                         </div>
                     </div>
                 `}).join('');
@@ -619,6 +694,7 @@
         }
 
         async function openPostDetailedView(id, event) {
+            if(event) event.stopPropagation();
             if(!currentUser) return alert("Security Notice: Please login/register onto UWU Mart to browse complete detailed descriptions.");
             try {
                 const res = await fetch(`/api/items/details/${id}`); const item = await res.json(); if(!item) return;
@@ -628,6 +704,10 @@
 
                 const mapsLink = item.location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}` : '#';
                 const locationRow = item.location ? `<div style="font-size:14px; color:#475569; margin-bottom:8px;">📍 <b>Location Hub:</b> <a href="${mapsLink}" target="_blank" style="color: var(--primary); text-decoration: underline; font-weight: 600;">${item.location}</a></div>` : '';
+
+                const detailedSellerControls = (currentUser && (currentUser.email === 'ict24067@std.uwu.ac.lk' || item.sellerEmail === currentUser.email)) ? `
+                    <button class="btn-delete" style="background:#e0f2fe; color:#0369a1; margin-top:12px; padding:12px; font-size:14px; border-radius:10px;" onclick="openEditPostModal('${item._id}', event); document.getElementById('details-modal').classList.remove('active');"><i class="fa-regular fa-pen-to-square"></i> Edit Post Info</button>
+                ` : '';
 
                 document.getElementById('details-modal-content').innerHTML = `
                     <img src="${item.imageUrl || 'https://via.placeholder.com/600x400?text=No+Photo'}" class="details-img">
@@ -642,6 +722,10 @@
                     <a href="${encodedLink}" target="_blank" class="btn-whatsapp" style="font-size:16px; padding:15px;">
                         <i class="fa-brands fa-whatsapp" style="font-size:22px;"></i> Initialize Instant WhatsApp Chat
                     </a>
+
+                    <button class="btn-nav" style="background:#f1f5f9; color:#475569; margin-top:12px; padding:12px; border-radius:10px; font-size:14px; width:100%; font-weight:bold; border:1px solid #e2e8f0;" onclick="sharePostLink('${item._id}', event)"><i class="fa-solid fa-share-nodes"></i> Share Post Link</button>
+                    
+                    ${detailedSellerControls}
                 `;
                 detailsModal.classList.add('active');
             } catch(e) { console.error(e); }
@@ -726,6 +810,29 @@
             if(data.success) { postModal.classList.remove('active'); loadMarketItemsGrid(); }
         });
 
+        // 🔄 ADDED EDIT UPDATE DISPATCH LISTENER TO SEND MODIFIED CONTENT TO BACKEND
+        document.getElementById('btn-update-post').addEventListener('click', async () => {
+            if(!currentUser) return alert("Session expired. Please login again.");
+            const id = document.getElementById('edit-post-id').value;
+            const title = document.getElementById('edit-title').value.trim();
+            const price = document.getElementById('edit-price').value.trim();
+            const category = document.getElementById('edit-category').value;
+            const location = document.getElementById('edit-location').value.trim(); 
+            const whatsapp = formatWhatsAppNumber(document.getElementById('edit-whatsapp').value.trim());
+            const description = document.getElementById('edit-desc').value.trim();
+
+            if(!title || !price || !whatsapp) return alert("Essential fields cannot be left blank!");
+
+            const res = await fetch(`/api/items/${id}`, { 
+                method: 'PUT', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ email: currentUser.email, title, price, category, location, whatsapp, description, imageUrl: editPhotoBase64 }) 
+            });
+            const data = await res.json(); 
+            alert(data.message);
+            if(data.success || res.ok) { editModal.classList.remove('active'); loadMarketItemsGrid(); }
+        });
+
         function renderWebsiteReviews() {
             const reviews = JSON.parse(localStorage.getItem('uwumart_reviews')) || [
                 { name: "Kasun Perera", comment: "This site is super useful for campus students! Highly recommended.", date: "2026-07-15" },
@@ -750,6 +857,13 @@
         }
 
         initializeNavbarState(); loadMarketItemsGrid(); renderWebsiteReviews();
+
+        // 🔄 AUTOMATIC ROUTING DETECTOR FOR DEEP LINKS (Auto opens shared posts on page load)
+        const urlParams = new URLSearchParams(window.location.search);
+        const sharedPostId = urlParams.get('post');
+        if (sharedPostId) {
+            setTimeout(() => { openPostDetailedView(sharedPostId); }, 800);
+        }
     </script>
 </body>
 </html>
