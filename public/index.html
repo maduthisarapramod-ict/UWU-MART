@@ -69,12 +69,18 @@
         .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
         
         .item-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: var(--card-shadow); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border: 1px solid #f1f5f9; cursor: pointer; }
-        .item-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px rgba(0,0,0,0.1); }
-        .item-img { width: 100%; height: 190px; object-fit: cover; background: #e2e8f0; }
+        .item-card:hover { transform: translateY(-5px); box-shadow: 0 20px 30px rgba(0,0,0,0.08); }
+        
+        /* 🖼️ Premium Full Size Image Config (No Crop) */
+        .item-img { width: 100%; height: 190px; object-fit: contain; background: #fafafa; border-bottom: 1px solid #f1f5f9; }
+        
         .item-details { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
         .item-price { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 5px; }
         .item-title { font-size: 16px; font-weight: 700; margin: 0 0 10px 0; color: #0f172a; }
-        .item-location { font-size: 13px; color: #475569; font-weight: 600; margin-bottom: 15px; }
+        
+        /* Premium Interactive Location Tag */
+        .item-location { font-size: 13px; color: #475569; font-weight: 600; margin-bottom: 15px; display: inline-flex; align-items: center; gap: 4px; transition: color 0.2s; }
+        .item-location:hover { color: var(--primary); text-decoration: underline; }
         
         .btn-whatsapp { display: flex; align-items: center; justify-content: center; gap: 8px; background: #25D366; color: white; text-decoration: none; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: auto; font-size: 14px; box-shadow: 0 4px 6px rgba(37, 211, 102, 0.15); }
         .btn-whatsapp:hover { background: #20ba59; }
@@ -113,7 +119,9 @@
 
         /* 🔍 BIG DETAILED VIEW MODAL */
         .details-box { background: white; max-width: 600px; width: 100%; padding: 30px; border-radius: 24px; position: relative; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
-        .details-img { width: 100%; max-height: 320px; object-fit: cover; border-radius: 16px; background: #e2e8f0; margin-bottom: 20px; }
+        
+        /* Premium Detailed Image Full Size Config */
+        .details-img { width: 100%; max-height: 320px; object-fit: contain; border-radius: 16px; background: #fafafa; margin-bottom: 20px; border: 1px solid #e2e8f0; }
         
         /* 👑 SECRET MASTER ADMIN DASHBOARD WIDGET */
         .admin-box { width: 100%; max-width: 750px; background: white; padding: 35px; border-radius: 24px; position: relative; max-height: 85vh; overflow-y: auto; box-sizing: border-box; }
@@ -121,12 +129,11 @@
         th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
         th { background: #f8fafc; color: #475569; }
 
-        /* 📱 UNIVERSAL MOBILE RESPONSIVE MEDIA QUERIES (HAMBURGER INTRODUCED) */
+        /* 📱 UNIVERSAL MOBILE RESPONSIVE MEDIA QUERIES */
         @media (max-width: 768px) {
             .navbar { padding: 12px 20px; }
             .logo { font-size: 18px; letter-spacing: 0.5px; }
             
-            /* Hide Buttons inside Hamburger Overlay */
             .menu-toggle { display: block; }
             .nav-buttons { 
                 display: none; 
@@ -180,14 +187,12 @@
         <div class="logo" onclick="location.reload()">UWU MART 🛒</div>
         
         <div class="nav-right-container">
-            <!-- Language Selector Switcher -->
             <select class="lang-dropdown" id="lang-select" onchange="changeLanguageSystem(this.value)">
                 <option value="en">English</option>
                 <option value="si">සිංහල</option>
                 <option value="ta">தமிழ்</option>
             </select>
             
-            <!-- Three Lines Hamburger Menu for Clutter-free Premium look -->
             <div class="menu-toggle" id="mobile-hamburger-btn"><i class="fa-solid fa-bars"></i></div>
             
             <div class="nav-buttons" id="nav-actions">
@@ -344,7 +349,7 @@
                 <option value="Rides">Campus Rides</option>
                 <option value="Other">Other</option>
             </select>
-            <input type="text" id="post-location" placeholder="Location / Boarding Location">
+            <input type="text" id="post-location" placeholder="Location / Boarding Location (Optional)">
             <input type="text" id="post-whatsapp" placeholder="WhatsApp Contact Number">
             <textarea id="post-desc" placeholder="Write description, condition or information about the item..." rows="4"></textarea>
             <label style="font-size:12px; color:#64748b; font-weight:600;">Upload Photo:</label>
@@ -391,33 +396,13 @@
 
     <!-- 🧠 FRONTEND CORE ENGINE -->
     <script>
-        // 🛠️ BULLETPROOF WHATSAPP NUMBER FORMATTER
         function formatWhatsAppNumber(phone) {
             if (!phone) return "";
-            
-            // Remove spaces, dashes, +, and non-numeric letters
             let cleaned = phone.toString().replace(/\D/g, '');
-            
-            // If it starts with 0094, clean to 94...
-            if (cleaned.startsWith('0094')) {
-                cleaned = cleaned.substring(2);
-            }
-            
-            // If it starts with standard 0 (e.g. 0703386462) -> replace 0 with 94
-            if (cleaned.startsWith('0')) {
-                cleaned = '94' + cleaned.substring(1);
-            }
-            
-            // If user typed without 0 (e.g. 703386462 -> 9 digits) -> prepend 94
-            if (cleaned.length === 9) {
-                cleaned = '94' + cleaned;
-            }
-            
-            // Ultimate fallback safety: if it doesn't start with 94 at all, append it
-            if (!cleaned.startsWith('94')) {
-                cleaned = '94' + cleaned;
-            }
-            
+            if (cleaned.startsWith('0094')) cleaned = cleaned.substring(2);
+            if (cleaned.startsWith('0')) cleaned = '94' + cleaned.substring(1);
+            if (cleaned.length === 9) cleaned = '94' + cleaned;
+            if (!cleaned.startsWith('94')) cleaned = '94' + cleaned;
             return cleaned;
         }
 
@@ -429,83 +414,39 @@
         let activeMainTab = "market"; 
         let currentLanguage = "en";
 
-        // 🔤 TRANSLATION DICTIONARY
         const systemTranslations = {
             en: {
-                nav_signin: "Sign In",
-                nav_post: "Post",
-                nav_admin: "Admin",
-                hero_title: "UWU Mart Hub",
-                search_holder: "🔍 Search item name or keywords here...",
-                tab_items: "🛒 Items Feed",
-                tab_riders: "🏍️ Delivery Riders",
-                cat_all: "🔥 All Posts",
-                cat_best_food: "🍳 Best Food Shop",
-                cat_elec: "📱 Electronics",
-                cat_books: "📚 Books & Materials",
-                cat_boarding: "🛏️ Boarding Items",
-                cat_clothing: "👕 Clothing & Fashion",
-                cat_food: "🍔 Food & Snacks",
-                cat_rides: "🏍️ Campus Rides",
-                cat_other: "✨ Other",
-                feed_heading: "Recent Marketplace Feeds (Newest First)",
-                riders_heading: "Registered Campus Delivery Riders",
-                rev_title: "Website Reviews",
-                rev_name_holder: "Enter Your Name",
-                rev_text_holder: "Share your experience or suggestions about UWU Mart...",
-                rev_btn: "Submit Review"
+                nav_signin: "Sign In", nav_post: "Post", nav_admin: "Admin", hero_title: "UWU Mart Hub",
+                search_holder: "🔍 Search item name or keywords here...", tab_items: "🛒 Items Feed",
+                tab_riders: "🏍️ Delivery Riders", cat_all: "🔥 All Posts", cat_best_food: "🍳 Best Food Shop",
+                cat_elec: "📱 Electronics", cat_books: "📚 Books & Materials", cat_boarding: "🛏️ Boarding Items",
+                cat_clothing: "👕 Clothing & Fashion", cat_food: "🍔 Food & Snacks", cat_rides: "🏍️ Campus Rides",
+                cat_other: "✨ Other", feed_heading: "Recent Marketplace Feeds (Newest First)",
+                riders_heading: "Registered Campus Delivery Riders", rev_title: "Website Reviews",
+                rev_name_holder: "Enter Your Name", rev_text_holder: "Share your experience or suggestions about UWU Mart...", rev_btn: "Submit Review"
             },
             si: {
-                nav_signin: "ඇතුල් වන්න",
-                nav_post: "පළ කරන්න",
-                nav_admin: "පාලක",
-                hero_title: "UWU මාර්ට් හබ්",
-                search_holder: "🔍 භාණ්ඩයේ නම හෝ මූල පද මෙතනින් සොයන්න...",
-                tab_items: "🛒 භාණ්ඩ පෝෂකය",
-                tab_riders: "🏍️ බෙදාහැරීම් රයිඩර්ස්",
-                cat_all: "🔥 සියලුම පළ කිරීම්",
-                cat_best_food: "🍳 හොඳම කෑම කඩ",
-                cat_elec: "📱 ඉලෙක්ට්‍රොනික උපකරණ",
-                cat_books: "📚 පොත් සහ ද්‍රව්‍ය",
-                cat_boarding: "🛏️ බෝඩිම් උපකරණ",
-                cat_clothing: "👕 ඇඟලුම් සහ විලාසිතා",
-                cat_food: "🍔 කෑම සහ කෙටි කෑම",
-                cat_rides: "🏍️ කැම්පස් රයිඩ්ස්",
-                cat_other: "✨ වෙනත්",
-                feed_heading: "මෑතකාලීන වෙළඳපොළ පෝෂක (අලුත්ම ඒවා මුලින්ම)",
-                riders_heading: "ලියාපදිංචි කැම්පස් බෙදාහැරීමේ රයිඩර්ස්",
-                rev_title: "වෙබ් අඩවිය පිළිබඳ සමාලෝචන (Reviews)",
-                rev_name_holder: "ඔබේ නම ඇතුළත් කරන්න",
-                rev_text_holder: "UWU Mart පිළිබඳ ඔබේ අත්දැකීම් හෝ යෝජනා බෙදාගන්න...",
-                rev_btn: "සමාලෝචනය ඉදිරිපත් කරන්න"
+                nav_signin: "ඇතුල් වන්න", nav_post: "පළ කරන්න", nav_admin: "පාලක", hero_title: "UWU මාර්ට් හබ්",
+                search_holder: "🔍 භාණ්ඩයේ නම හෝ මූල පද මෙතනින් සොයන්න...", tab_items: "🛒 භාණ්ඩ පෝෂකය",
+                tab_riders: "🏍️ බෙදාහැරීම් රයිඩර්ස්", cat_all: "🔥 සියලුම පළ කිරීම්", cat_best_food: "🍳 හොඳම කෑම කඩ",
+                cat_elec: "📱 ඉලෙක්ට්‍රොනික උපකරණ", cat_books: "📚 පොත් සහ ද්‍රව්‍ය", cat_boarding: "🛏️ බෝඩිම් උපකරණ",
+                cat_clothing: "👕 ඇඟලුම් සහ විලාසිතා", cat_food: "🍔 කෑම සහ කෙටි කෑම", cat_rides: "🏍️ කැම්පස් රයිඩ්ස්",
+                cat_other: "✨ වෙනත්", feed_heading: "මෑතකාලීන වෙළඳපොළ පෝෂක (අලුත්ම ඒවා මුලින්ම)",
+                riders_heading: "ලියාපදිංචි කැම්පස් බෙදාහැරීමේ රයිඩර්ස්", rev_title: "වෙබ් අඩවිය පිළිබඳ සමාලෝචන (Reviews)",
+                rev_name_holder: "ඔබේ නම ඇතුළත් කරන්න", rev_text_holder: "UWU Mart පිළිබඳ ඔබේ අත්දැකීම් හෝ යෝජනා බෙදාගන්න...", rev_btn: "සමාලෝචනය ඉදිරිපත් කරන්න"
             },
             ta: {
-                nav_signin: "உள்நுழைக",
-                nav_post: "பதிவிடுக",
-                nav_admin: "நிர்வாகி",
-                hero_title: "UWU மார்ட் ஹப்",
-                search_holder: "🔍 பொருளின் பெயர் அல்லது முக்கிய வார்த்தைகளைத் தேடுங்கள்...",
-                tab_items: "🛒 பொருட்கள் ஊட்டம்",
-                tab_riders: "🏍️ விநியோக ரைடர்ஸ்",
-                cat_all: "🔥 அனைத்து பதிவுகள்",
-                cat_best_food: "🍳 சிறந்த உணவுக்கடை",
-                cat_elec: "📱 எலக்ட்ரானிக்ஸ்",
-                cat_books: "📚 புத்தகங்கள் & பொருட்கள்",
-                cat_boarding: "🛏️ விடுதி பொருட்கள்",
-                cat_clothing: "👕 ஆடைகள் & ஃபேஷன்",
-                cat_food: "🍔 உணவு & சிற்றுண்டி",
-                cat_rides: "🏍️ வளாக சவாரிகள்",
-                cat_other: "✨ மற்றவை",
-                feed_heading: "சமீபத்திய சந்தை ஊட்டங்கள் (புதியவை முதலில்)",
-                riders_heading: "பதிவுசெய்யப்பட்ட வளாக விநியோக ரைடர்ஸ்",
-                rev_title: "வலைத்தள மதிப்புரைகள்",
-                rev_name_holder: "உங்கள் பெயரை உள்ளிடவும்",
-                rev_text_holder: "UWU Mart பற்றிய உங்கள் அனுபவம் அல்லது பரிந்துரைகளைப் பகிர்ந்து கொள்ளுங்கள்...",
-                rev_btn: "மதிப்பாய்வைச் சமர்ப்பிக்கவும்"
+                nav_signin: "உள்நுழைக", nav_post: "பதிவிடுக", nav_admin: "நிர்வாகி", hero_title: "UWU மார்ட் ஹப்",
+                search_holder: "🔍 பொருளின் பெயர் அல்லது முக்கிய வார்த்தைகளைத் தேடுங்கள்...", tab_items: "🛒 பொருட்கள் ஊட்டம்",
+                tab_riders: "🏍️ விநியோக ரைடர்ஸ்", cat_all: "🔥 அனைத்து பதிவுகள்", cat_best_food: "🍳 சிறந்த உணவுக்கடை",
+                cat_elec: "📱 எலக்ட்ரானிக்ஸ்", cat_books: "📚 புத்தகங்கள் & பொருட்கள்", cat_boarding: "🛏️ விடுதி பொருட்கள்",
+                cat_clothing: "👕 ஆடைகள் & ஃபேஷன்", cat_food: "🍔 உணவு & சிற்றுண்டி", cat_rides: "🏍️ வளாக சவாரிகள்",
+                cat_other: "✨ மற்றவை", feed_heading: "சமீபத்திய சந்தை ஊட்டங்கள் (புதியவை முதலில்)",
+                riders_heading: "பதிவுசெய்யப்பட்ட வளாக விநியோக ரைடர்ஸ்", rev_title: "வலைத்தள மதிப்புரைகள்",
+                rev_name_holder: "உங்கள் பெயரை உள்ளிடவும்", rev_text_holder: "UWU Mart பற்றிய உங்கள் அனுபவம் அல்லது பரிந்துரைகளைப் பகிர்ந்து கொள்ளுங்கள்...", rev_btn: "மதிப்பாய்வைச் சமர்ப்பிக்கவும்"
             }
         };
 
-        // DOM Elements
         const authModal = document.getElementById('auth-modal');
         const postModal = document.getElementById('post-modal');
         const adminModal = document.getElementById('admin-modal');
@@ -519,18 +460,11 @@
         const mainDataContainer = document.getElementById('main-data-container');
         const hamburgerBtn = document.getElementById('mobile-hamburger-btn');
 
-        // Hamburger Responsive Controller 
-        hamburgerBtn.addEventListener('click', () => {
-            navActions.classList.toggle('active');
-        });
-
+        hamburgerBtn.addEventListener('click', () => navActions.classList.toggle('active'));
         navActions.addEventListener('click', (e) => {
-            if(e.target.tagName === 'BUTTON' || e.target.closest('.user-profile')) {
-                navActions.classList.remove('active');
-            }
+            if(e.target.tagName === 'BUTTON' || e.target.closest('.user-profile')) navActions.classList.remove('active');
         });
 
-        // Modal Action Controllers
         document.getElementById('btn-show-auth')?.addEventListener('click', () => authModal.classList.add('active'));
         document.getElementById('btn-close-auth').addEventListener('click', () => authModal.classList.remove('active'));
         document.getElementById('btn-close-post').addEventListener('click', () => postModal.classList.remove('active'));
@@ -538,92 +472,62 @@
         document.getElementById('btn-close-details').addEventListener('click', () => detailsModal.classList.remove('active'));
         document.getElementById('btn-close-profile').addEventListener('click', () => profileModal.classList.remove('active'));
 
-        // Inner Switching Views
         document.getElementById('link-goto-register').addEventListener('click', (e) => { e.preventDefault(); loginSection.style.display = 'none'; registerSection.style.display = 'block'; });
         document.getElementById('link-goto-login').addEventListener('click', (e) => { e.preventDefault(); registerSection.style.display = 'none'; loginSection.style.display = 'block'; });
         document.getElementById('link-forgot-password').addEventListener('click', (e) => { e.preventDefault(); loginSection.style.display = 'none'; forgotSection.style.display = 'block'; });
         document.getElementById('link-forgot-back').addEventListener('click', (e) => { e.preventDefault(); forgotSection.style.display = 'none'; loginSection.style.display = 'block'; });
 
-        // Base64 Streaming Processors
         document.getElementById('reg-photo').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
+            const file = e.target.files[0]; const reader = new FileReader();
             reader.onloadend = () => { regPhotoBase64 = reader.result; };
             if (file) reader.readAsDataURL(file);
         });
         document.getElementById('post-photo').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
+            const file = e.target.files[0]; const reader = new FileReader();
             reader.onloadend = () => { itemPhotoBase64 = reader.result; };
             if (file) reader.readAsDataURL(file);
         });
         document.getElementById('profile-upload-photo').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onloadend = () => { 
-                profilePhotoBase64 = reader.result; 
-                document.getElementById('profile-display-avatar').src = reader.result;
-            };
+            const file = e.target.files[0]; const reader = new FileReader();
+            reader.onloadend = () => { profilePhotoBase64 = reader.result; document.getElementById('profile-display-avatar').src = reader.result; };
             if (file) reader.readAsDataURL(file);
         });
 
-        // Language Switcher Engine
         function changeLanguageSystem(lang) {
             currentLanguage = lang;
-            
             document.querySelectorAll('[data-key]').forEach(el => {
                 const key = el.getAttribute('data-key');
                 if(systemTranslations[lang][key]) {
-                    if(key === 'tab_items') el.innerHTML = systemTranslations[lang][key];
-                    else if(key === 'tab_riders') el.innerHTML = systemTranslations[lang][key];
+                    if(key === 'tab_items' || key === 'tab_riders') el.innerHTML = systemTranslations[lang][key];
                     else el.innerText = systemTranslations[lang][key];
                 }
             });
-
             document.querySelectorAll('[data-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-placeholder');
-                if(systemTranslations[lang][key]) {
-                    el.placeholder = systemTranslations[lang][key];
-                }
+                if(systemTranslations[lang][key]) el.placeholder = systemTranslations[lang][key];
             });
-            
             if(currentSelectedCategory !== "All") {
                 document.getElementById('market-heading').innerText = (lang === 'si' ? `සඳහා පෝෂක ${currentSelectedCategory}` : lang === 'ta' ? `${currentSelectedCategory} க்கான ஊட்டங்கள்` : `Feeds for ${currentSelectedCategory}`) + ` (${lang==='si'?'අලුත්ම ඒවා මුලින්ම':lang==='ta'?'புதியவை முதலில்':'Newest First'})`;
             }
         }
 
-        // Anti-Spam Timer
         function startCountdown(buttonId, durationSeconds) {
-            const btn = document.getElementById(buttonId);
-            let timeLeft = durationSeconds; 
-            btn.disabled = true;
-            
+            const btn = document.getElementById(buttonId); let timeLeft = durationSeconds; btn.disabled = true;
             const timer = setInterval(() => {
-                if (timeLeft <= 0) { 
-                    clearInterval(timer); 
-                    btn.innerText = buttonId === 'btn-reg-otp' ? "Get Verification Code" : "Send Reset OTP"; 
-                    btn.disabled = false; 
-                } else { 
-                    btn.innerText = `Resend Code (${timeLeft}s)`; 
-                    timeLeft--; 
-                }
+                if (timeLeft <= 0) { clearInterval(timer); btn.innerText = buttonId === 'btn-reg-otp' ? "Get Verification Code" : "Send Reset OTP"; btn.disabled = false; }
+                else { btn.innerText = `Resend Code (${timeLeft}s)`; timeLeft--; }
             }, 1000);
         }
 
-        // Tab Switcher
         function switchMainTab(tabName) {
             activeMainTab = tabName;
             document.getElementById('tab-marketplace').classList.toggle('active', tabName === 'market');
             document.getElementById('tab-riders').classList.toggle('active', tabName === 'riders');
-            
             document.getElementById('section-market-view').style.display = tabName === 'market' ? 'block' : 'none';
             document.getElementById('section-riders-view').style.display = tabName === 'riders' ? 'block' : 'none';
-            
-            if(tabName === 'market') loadMarketItemsGrid();
-            else loadRidersGrid();
+            if(tabName === 'market') loadMarketItemsGrid(); else loadRidersGrid();
         }
 
-        // Navbar State Manager
         function initializeNavbarState() {
             if (currentUser) {
                 let adminWidget = "";
@@ -639,46 +543,30 @@
                     </div>
                 `;
                 document.getElementById('btn-show-post')?.addEventListener('click', () => postModal.classList.add('active'));
-                document.getElementById('btn-show-admin')?.addEventListener('click', () => {
-                    adminModal.classList.add('active');
-                    loadAdminDashboardData();
-                });
-                
+                document.getElementById('btn-show-admin')?.addEventListener('click', () => { adminModal.classList.add('active'); loadAdminDashboardData(); });
                 document.getElementById('btn-open-profile').addEventListener('click', () => {
                     document.getElementById('profile-display-avatar').src = currentUser.photoUrl || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
                     document.getElementById('profile-display-email').innerText = currentUser.email;
                     document.getElementById('profile-edit-name').value = currentUser.name;
-                    profilePhotoBase64 = currentUser.photoUrl;
-                    profileModal.classList.add('active');
+                    profilePhotoBase64 = currentUser.photoUrl; profileModal.classList.add('active');
                 });
             }
             changeLanguageSystem(currentLanguage);
         }
 
-        // Profile Save Update
         document.getElementById('btn-save-profile').addEventListener('click', () => {
-            const updatedName = document.getElementById('profile-edit-name').value.trim();
-            if(!updatedName) return alert("Name field cannot be left blank!");
-            
-            currentUser.name = updatedName;
-            currentUser.photoUrl = profilePhotoBase64;
-            
-            localStorage.setItem('user', JSON.stringify(currentUser));
-            alert("Profile successfully customized!");
-            profileModal.classList.remove('active');
-            initializeNavbarState();
+            const updatedName = document.getElementById('profile-edit-name').value.trim(); if(!updatedName) return alert("Name field cannot be left blank!");
+            currentUser.name = updatedName; currentUser.photoUrl = profilePhotoBase64;
+            localStorage.setItem('user', JSON.stringify(currentUser)); alert("Profile successfully customized!");
+            profileModal.classList.remove('active'); initializeNavbarState();
         });
 
-        document.getElementById('btn-profile-logout').addEventListener('click', () => {
-            localStorage.removeItem('user'); currentUser = null; location.reload();
-        });
+        document.getElementById('btn-profile-logout').addEventListener('click', () => { localStorage.removeItem('user'); currentUser = null; location.reload(); });
 
-        // Admin Dash
         async function loadAdminDashboardData() {
             if(currentUser?.email !== 'ict24067@std.uwu.ac.lk') return;
             try {
-                const res = await fetch(`/api/admin/users?adminEmail=${currentUser.email}`);
-                const data = await res.json();
+                const res = await fetch(`/api/admin/users?adminEmail=${currentUser.email}`); const data = await res.json();
                 if(data.success) {
                     document.getElementById('admin-user-count').innerText = data.users.length;
                     document.getElementById('admin-user-rows').innerHTML = data.users.map(u => `
@@ -695,7 +583,7 @@
             } catch(e) { console.error(e); }
         }
 
-        // 🛒 STREAM MARKET GRID FEED (WITH encodeURIComponent PROTECTION)
+        // 🛒 STREAM MARKET GRID FEED (With Full Size Image & Maps Link Integration)
         async function loadMarketItemsGrid(searchQuery = "") {
             if(activeMainTab !== "market") return;
             try {
@@ -714,13 +602,21 @@
                     const rawText = `Hello, I am interested in your post [${item.title}] on UWU Mart.`;
                     const encodedLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(rawText)}`;
                     
+                    // Google Maps URL Configuration
+                    const mapsLink = item.location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}` : '#';
+                    const locationTag = item.location ? `
+                        <div class="item-location" onclick="event.stopPropagation(); window.open('${mapsLink}', '_blank');">
+                            <i class="fa-solid fa-location-dot"></i> <u>${item.location}</u>
+                        </div>
+                    ` : '';
+                    
                     return `
                     <div class="item-card" onclick="openPostDetailedView('${item._id}', event)">
                         <img src="${item.imageUrl || 'https://via.placeholder.com/400x250?text=UWU+Mart'}" class="item-img">
                         <div class="item-details">
                             <div class="item-price">${item.price == 0 ? 'Free / Ride' : 'LKR ' + item.price.toLocaleString()}</div>
                             <h3 class="item-title">${item.title}</h3>
-                            <div class="item-location"><i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> ${item.location}</div>
+                            ${locationTag}
                             
                             <a href="${encodedLink}" target="_blank" class="btn-whatsapp" onclick="event.stopPropagation();">
                                 <i class="fa-brands fa-whatsapp" style="font-size:18px;"></i> Contact WhatsApp
@@ -734,23 +630,19 @@
             } catch (err) { console.error(err); }
         }
 
-        // 🏍️ STREAM REGISTERED RIDERS GRID (WITH encodeURIComponent PROTECTION)
         async function loadRidersGrid() {
             if(activeMainTab !== "riders") return;
             try {
                 mainDataContainer.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#64748b;"><i class="fa-solid fa-spinner fa-spin"></i> Finding active riders...</p>`;
                 const res = await fetch('/api/riders'); const riders = await res.json();
-                
                 if(riders.length === 0) {
                     mainDataContainer.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; background:white; border-radius:16px; box-shadow:var(--card-shadow); color:#64748b;">No active delivery riders currently listed.</div>`;
                     return;
                 }
-
                 mainDataContainer.innerHTML = riders.map(rider => {
                     const cleanPhone = formatWhatsAppNumber(rider.phone);
                     const rawText = `Hi, I found you on the UWU Mart Rider list. I need assistance with a delivery/ride.`;
                     const encodedLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(rawText)}`;
-
                     return `
                     <div class="rider-card">
                         <img src="${rider.photoUrl || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="rider-avatar">
@@ -764,16 +656,17 @@
             } catch (e) { console.error(e); }
         }
 
-        // 🔍 CLICK MODAL VIEW FOR ITEMS (WITH encodeURIComponent PROTECTION)
+        // 🔍 CLICK MODAL VIEW FOR ITEMS (Detailed View Maps Link Integration)
         async function openPostDetailedView(id, event) {
             if(!currentUser) return alert("Security Notice: Please login/register onto UWU Mart to browse complete detailed descriptions.");
             try {
-                const res = await fetch(`/api/items/details/${id}`); const item = await res.json();
-                if(!item) return;
-
+                const res = await fetch(`/api/items/details/${id}`); const item = await res.json(); if(!item) return;
                 const cleanPhone = formatWhatsAppNumber(item.whatsapp);
                 const rawText = `Hello ${item.sellerName}, I viewed your post detail sheet on UWU Mart for [${item.title}]. Let's discuss.`;
                 const encodedLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(rawText)}`;
+
+                const mapsLink = item.location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}` : '#';
+                const locationRow = item.location ? `<div style="font-size:14px; color:#475569; margin-bottom:8px;">📍 <b>Location Hub:</b> <a href="${mapsLink}" target="_blank" style="color: var(--primary); text-decoration: underline; font-weight: 600;">${item.location}</a></div>` : '';
 
                 document.getElementById('details-modal-content').innerHTML = `
                     <img src="${item.imageUrl || 'https://via.placeholder.com/600x400?text=No+Photo'}" class="details-img">
@@ -781,7 +674,7 @@
                     <h2 style="margin:0 0 15px 0; color:#0f172a; font-size:22px; font-weight:800;">${item.title}</h2>
                     <hr style="border:0; height:1px; background:#e2e8f0; margin-bottom:15px;">
                     <p style="font-size:15px; color:#475569; line-height:1.6; background:#f8fafc; padding:15px; border-radius:12px; margin-bottom:20px; white-space:pre-wrap;"><b>Specifications / Notes:</b>\n${item.description || 'No specialized description notes documented by seller.'}</p>
-                    <div style="font-size:14px; color:#475569; margin-bottom:8px;">📍 <b>Location Hub:</b> ${item.location}</div>
+                    ${locationRow}
                     <div style="font-size:14px; color:#475569; margin-bottom:8px;">📁 <b>Filtered Category:</b> ${item.category}</div>
                     <div style="font-size:14px; color:#475569; margin-bottom:25px;">👤 <b>Listed By User:</b> ${item.sellerName} (${item.sellerEmail})</div>
                     
@@ -794,179 +687,109 @@
         }
 
         function filterCategory(category, badgeElement) {
-            currentSelectedCategory = category;
-            document.querySelectorAll('.category-badge').forEach(b => b.classList.remove('active'));
-            badgeElement.classList.add('active');
-            
-            const lang = currentLanguage;
-            if (category === "All") {
-                document.getElementById('market-heading').innerText = systemTranslations[lang]['feed_heading'];
-            } else {
+            currentSelectedCategory = category; document.querySelectorAll('.category-badge').forEach(b => b.classList.remove('active'));
+            badgeElement.classList.add('active'); const lang = currentLanguage;
+            if (category === "All") document.getElementById('market-heading').innerText = systemTranslations[lang]['feed_heading'];
+            else {
                 document.getElementById('market-heading').innerText = (lang === 'si' ? `සඳහා පෝෂක ${category}` : lang === 'ta' ? `${category} க்கான ஊட்டங்கள்` : `Feeds for ${category}`) + ` (${lang==='si'?'අලුත්ම ඒවා මුලින්ම':lang==='ta'?'புதியவை முதலில்':'Newest First'})`;
             }
             loadMarketItemsGrid();
         }
 
-        document.getElementById('btn-search-trigger').addEventListener('click', () => {
-            loadMarketItemsGrid(document.getElementById('search-input').value.trim());
-        });
-        document.getElementById('search-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') loadMarketItemsGrid(e.target.value.trim());
-        });
+        document.getElementById('btn-search-trigger').addEventListener('click', () => loadMarketItemsGrid(document.getElementById('search-input').value.trim()));
+        document.getElementById('search-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') loadMarketItemsGrid(e.target.value.trim()); });
 
         async function deletePostEntry(id, event) {
-            event.stopPropagation();
-            if(!confirm("Are you entirely sure you want to completely erase this post?")) return;
-            const res = await fetch(`/api/items/${id}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: currentUser?.email })
-            });
+            event.stopPropagation(); if(!confirm("Are you entirely sure you want to completely erase this post?")) return;
+            const res = await fetch(`/api/items/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: currentUser?.email }) });
             const data = await res.json(); alert(data.message); loadMarketItemsGrid();
         }
 
-        // --- Auth OTP triggers ---
         document.getElementById('btn-reg-otp').addEventListener('click', async () => {
-            const email = document.getElementById('reg-email').value.trim();
-            if(!email) return alert("Please type your campus email first.");
-            
-            const btn = document.getElementById('btn-reg-otp');
-            btn.disabled = true;
-            btn.innerText = "Sending Code...";
-
+            const email = document.getElementById('reg-email').value.trim(); if(!email) return alert("Please type your campus email first.");
+            const btn = document.getElementById('btn-reg-otp'); btn.disabled = true; btn.innerText = "Sending Code...";
             try {
                 const res = await fetch('/api/auth/send-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
-                const data = await res.json();
-                alert(data.message);
-                startCountdown('btn-reg-otp', 60);
-            } catch (err) {
-                alert("ℹ️ Campus Email network busy. For instant activation, use Master OTP: 123456");
-                startCountdown('btn-reg-otp', 60);
-            }
+                const data = await res.json(); alert(data.message); startCountdown('btn-reg-otp', 60);
+            } catch (err) { alert("ℹ️ Campus Email network busy. For instant activation, use Master OTP: 123456"); startCountdown('btn-reg-otp', 60); }
         });
 
         document.getElementById('btn-forgot-otp').addEventListener('click', async () => {
-            const email = document.getElementById('forgot-email').value.trim();
-            if(!email) return alert("Please type your campus email first.");
-            
-            const btn = document.getElementById('btn-forgot-otp');
-            btn.disabled = true;
-            btn.innerText = "Sending Reset Token...";
-
+            const email = document.getElementById('forgot-email').value.trim(); if(!email) return alert("Please type your campus email first.");
+            const btn = document.getElementById('btn-forgot-otp'); btn.disabled = true; btn.innerText = "Sending Reset Token...";
             try {
                 const res = await fetch('/api/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
-                const data = await res.json();
-                alert(data.message);
-                forgotFields.style.display = 'block';
-                startCountdown('btn-forgot-otp', 60);
-            } catch (err) {
-                alert("ℹ️ Network Timeout. Use Master OTP: 123456 to reset password instantly.");
-                forgotFields.style.display = 'block';
-                startCountdown('btn-forgot-otp', 60);
-            }
+                const data = await res.json(); alert(data.message); forgotFields.style.display = 'block'; startCountdown('btn-forgot-otp', 60);
+            } catch (err) { alert("ℹ️ Network Timeout. Use Master OTP: 123456 to reset password instantly."); forgotFields.style.display = 'block'; startCountdown('btn-forgot-otp', 60); }
         });
 
-        // Register Action (Double-secured Formatting)
         document.getElementById('btn-register').addEventListener('click', async () => {
-            const email = document.getElementById('reg-email').value;
-            const otp = document.getElementById('reg-otp').value;
-            const name = document.getElementById('reg-name').value;
-            const studentId = document.getElementById('reg-id').value;
-            const phone = formatWhatsAppNumber(document.getElementById('reg-phone').value.trim());
-            const role = document.getElementById('reg-role').value;
+            const email = document.getElementById('reg-email').value; const otp = document.getElementById('reg-otp').value;
+            const name = document.getElementById('reg-name').value; const studentId = document.getElementById('reg-id').value;
+            const phone = formatWhatsAppNumber(document.getElementById('reg-phone').value.trim()); const role = document.getElementById('reg-role').value;
             const password = document.getElementById('reg-password').value;
-
             const res = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, otp, name, studentId, phone, role, password, photoUrl: regPhotoBase64 }) });
-            const data = await res.json(); alert(data.message);
-            if(data.success) { registerSection.style.display = 'none'; loginSection.style.display = 'block'; }
+            const data = await res.json(); alert(data.message); if(data.success) { registerSection.style.display = 'none'; loginSection.style.display = 'block'; }
         });
 
         document.getElementById('btn-login').addEventListener('click', async () => {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+            const email = document.getElementById('login-email').value; const password = document.getElementById('login-password').value;
             const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
             const data = await res.json();
-
             if (res.status === 444) {
                 alert("Account domain unregistered! Redirected to registration layout.");
-                loginSection.style.display = 'none'; registerSection.style.display = 'block';
-                document.getElementById('reg-email').value = email; return;
+                loginSection.style.display = 'none'; registerSection.style.display = 'block'; document.getElementById('reg-email').value = email; return;
             }
-            alert(data.message);
-            if(data.success) { localStorage.setItem('user', JSON.stringify(data.user)); location.reload(); }
+            alert(data.message); if(data.success) { localStorage.setItem('user', JSON.stringify(data.user)); location.reload(); }
         });
 
         document.getElementById('btn-confirm-reset').addEventListener('click', async () => {
-            const email = document.getElementById('forgot-email').value;
-            const otp = document.getElementById('forgot-otp').value;
-            const newPassword = document.getElementById('forgot-new-pass').value;
+            const email = document.getElementById('forgot-email').value; const otp = document.getElementById('forgot-otp').value; const newPassword = document.getElementById('forgot-new-pass').value;
             const res = await fetch('/api/auth/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, otp, newPassword }) });
-            const data = await res.json(); alert(data.message);
-            if(data.success) { forgotSection.style.display = 'none'; loginSection.style.display = 'block'; forgotFields.style.display = 'none'; }
+            const data = await res.json(); alert(data.message); if(data.success) { forgotSection.style.display = 'none'; loginSection.style.display = 'block'; forgotFields.style.display = 'none'; }
         });
 
-        // Submit Post (Double-secured Formatting before saving to DB)
+        // Submit Post (Location Validations Adjusted to Optional)
         document.getElementById('btn-submit-post').addEventListener('click', async () => {
             if(!currentUser) return alert("Login to authorize.");
-            const title = document.getElementById('post-title').value;
-            const price = document.getElementById('post-price').value;
+            const title = document.getElementById('post-title').value.trim();
+            const price = document.getElementById('post-price').value.trim();
             const category = document.getElementById('post-category').value;
-            const location = document.getElementById('post-location').value;
+            const location = document.getElementById('post-location').value.trim(); // Optional නිසා validation ඉවත් කරන ලදී.
             const whatsapp = formatWhatsAppNumber(document.getElementById('post-whatsapp').value.trim());
-            const description = document.getElementById('post-desc').value;
+            const description = document.getElementById('post-desc').value.trim();
 
-            if(!title || !price || !location || !whatsapp) return alert("Fill essential input fields!");
+            if(!title || !price || !whatsapp) return alert("Fill essential input fields!");
 
             const res = await fetch('/api/items/post', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, price, category, location, whatsapp, description, imageUrl: itemPhotoBase64, sellerEmail: currentUser.email, sellerName: currentUser.name }) });
             const data = await res.json(); alert(data.message);
             if(data.success) { postModal.classList.remove('active'); loadMarketItemsGrid(); }
         });
 
-        // Reviews System
         function renderWebsiteReviews() {
             const reviews = JSON.parse(localStorage.getItem('uwumart_reviews')) || [
                 { name: "Kasun Perera", comment: "This site is super useful for campus students! Highly recommended.", date: "2026-07-15" },
                 { name: "Fathima Riza", comment: "Buying boarding items became really easy because of UWU Mart.", date: "2026-07-17" }
             ];
-            const container = document.getElementById('web-reviews-container');
-            container.innerHTML = reviews.map(r => `
+            document.getElementById('web-reviews-container').innerHTML = reviews.map(r => `
                 <div class="review-card">
-                    <div class="review-header">
-                        <span class="review-user">${r.name}</span>
-                        <span class="review-date">${r.date}</span>
-                    </div>
+                    <div class="review-header"><span class="review-user">${r.name}</span><span class="review-date">${r.date}</span></div>
                     <p class="review-comment">${r.comment}</p>
                 </div>
             `).join('');
         }
 
         function submitWebsiteReview() {
-            const nameInput = document.getElementById('review-username');
-            const commentInput = document.getElementById('review-comment');
-            
+            const nameInput = document.getElementById('review-username'); const commentInput = document.getElementById('review-comment');
             if(!nameInput.value.trim() || !commentInput.value.trim()) {
                 return alert(currentLanguage === 'si' ? "කරුණාකර නම සහ අදහස ඇතුළත් කරන්න!" : currentLanguage === 'ta' ? "பெயர் மற்றும் கருத்தை உள்ளிடவும்!" : "Please fill both Name and Review fields!");
             }
-
             const reviews = JSON.parse(localStorage.getItem('uwumart_reviews')) || [];
-            const newReview = {
-                name: nameInput.value.trim(),
-                comment: commentInput.value.trim(),
-                date: new Date().toISOString().split('T')[0]
-            };
-            
-            reviews.unshift(newReview);
-            localStorage.setItem('uwumart_reviews', JSON.stringify(reviews));
-            
-            nameInput.value = "";
-            commentInput.value = "";
-            renderWebsiteReviews();
+            reviews.unshift({ name: nameInput.value.trim(), comment: commentInput.value.trim(), date: new Date().toISOString().split('T')[0] });
+            localStorage.setItem('uwumart_reviews', JSON.stringify(reviews)); nameInput.value = ""; commentInput.value = ""; renderWebsiteReviews();
         }
 
-        // Initialize App
-        initializeNavbarState();
-        loadMarketItemsGrid();
-        renderWebsiteReviews();
+        initializeNavbarState(); loadMarketItemsGrid(); renderWebsiteReviews();
     </script>
 </body>
 </html>
